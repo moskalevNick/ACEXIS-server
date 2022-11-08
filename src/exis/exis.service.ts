@@ -1,10 +1,10 @@
-import { UpdateExisDto } from './../dto/update-exis.dto';
 import { ExisDocument } from './../schemas/exis.schema';
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Exis } from 'src/schemas/exis.schema';
-import { CreateExisDto } from 'src/dto/create-exis.dto';
+import { CreateExisDto } from './dto/create-exis.dto';
+import { UpdateExisDto } from './dto/update-exis.dto';
 
 @Injectable()
 export class ExisService {

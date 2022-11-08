@@ -6,5 +6,5 @@ export class CreateClientDto {
   readonly visits: { date: Date; exisId?: string }[];
   readonly pinnedExisId: string;
   readonly bills: number[];
-  readonly imgPath: string[];
+  readonly imgIds: string[];
 }

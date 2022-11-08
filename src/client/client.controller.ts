@@ -1,3 +1,4 @@
+import { FileInterceptor } from '@nestjs/platform-express';
 import {
   Body,
   Controller,
@@ -7,11 +8,14 @@ import {
   HttpCode,
   HttpStatus,
   Param,
+  Patch,
   Post,
   Put,
+  UploadedFile,
+  UseInterceptors,
 } from '@nestjs/common';
-import { CreateClientDto } from 'src/dto/create-client.dto';
-import { UpdateClientDto } from 'src/dto/update-client.dto';
+import { CreateClientDto } from 'src/client/dto/create-client.dto';
+import { UpdateClientDto } from 'src/client/dto/update-client.dto';
 import { Client } from 'src/schemas/client.schema';
 import { ClientService } from './client.service';
 
@@ -42,6 +46,20 @@ export class ClientController {
     @Param('id') id: string,
   ): Promise<Client> {
     return this.clientService.update(id, updateClientDto);
+  }
+
+  @Post('/avatar/:id')
+  @UseInterceptors(FileInterceptor('file'))
+  public async uploadAvatar(
+    @Param('id') id: string,
+    @UploadedFile() file: Express.Multer.File,
+  ): Promise<string> {
+    return this.clientService.uploadAvatar(id, file);
+  }
+
+  @Delete('/avatar/:id')
+  public async deleteAvatar(@Param('id') id: string): Promise<void> {
+    return this.clientService.deleteAvatar(id);
   }
 
   @Delete('/:id')

@@ -27,7 +27,7 @@ export class Client {
   bills: [number];
 
   @Prop()
-  imgPath: [string];
+  imgIds: [string];
 
   @Prop()
   exisIds: [string];
