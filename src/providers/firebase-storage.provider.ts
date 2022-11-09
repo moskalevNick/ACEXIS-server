@@ -1,12 +1,14 @@
 import { v4 as uuidv4 } from 'uuid';
 import { Injectable } from '@nestjs/common';
 import { getStorage, ref, uploadBytes, deleteObject } from 'firebase/storage';
-import { AvatarService } from 'src/avatar/avatar.service';
+import { Avatar } from 'src/schemas/avatar.schema';
+import { AvatarService } from 'src/modules/avatar/avatar.service';
 const path = require('path');
 
 @Injectable()
 export class FirebaseStorageProvider {
   constructor(private avatarService: AvatarService) {}
+
   public async upload(
     file: Express.Multer.File,
     folder: string,
@@ -14,13 +16,11 @@ export class FirebaseStorageProvider {
   ): Promise<string> {
     const storage = getStorage();
 
-    const fileName = path.parse(file.originalname).name;
+    const fileName = `${path.parse(file.originalname).name}__${uuidv4()}`;
     const fileExtension = path.parse(file.originalname).ext;
+    const fullName = `${folder}/${fileName}${fileExtension}`;
 
-    const fileRef = ref(
-      storage,
-      `${folder}/${fileName}__${uuidv4()}${fileExtension}`,
-    );
+    const fileRef = ref(storage, fullName);
 
     const uploaded = await uploadBytes(fileRef, file.buffer, {
       contentType: 'image/jpeg',
@@ -30,7 +30,7 @@ export class FirebaseStorageProvider {
 
     this.avatarService.create({
       id: avatarId,
-      path: `${folder}/${fileName}__${uuidv4()}${fileExtension}`,
+      path: fullName,
       clientId: clientId,
       publicUrl: `https://firebasestorage.googleapis.com/v0/b/acexis-c375d.appspot.com/o/client-avatars%2F${uploaded.metadata.name}?alt=media`,
     });
@@ -38,18 +38,15 @@ export class FirebaseStorageProvider {
     return avatarId;
   }
 
-  public async delete(): Promise<string> {
+  public async delete(avatar: Avatar): Promise<string> {
     const storage = getStorage();
+    const fileRef = ref(storage, avatar.path);
+    try {
+      await deleteObject(fileRef);
+    } catch (e) {
+      return `can't remove this avatar`;
+    }
 
-    const fileRef = ref(
-      storage,
-      `client-avatars/beauti.full__cd02391e-2e84-4c85-94b6-4f78463b9f22.jpeg`,
-    );
-
-    const deleted = await deleteObject(fileRef);
-
-    console.log('deleted', deleted);
-
-    return '123';
+    return `avatar successfully deleted`;
   }
 }

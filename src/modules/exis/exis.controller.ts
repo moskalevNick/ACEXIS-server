@@ -1,4 +1,3 @@
-import { UpdateExisDto } from './dto/update-exis.dto';
 import {
   Body,
   Controller,
@@ -11,7 +10,8 @@ import {
   Post,
   Put,
 } from '@nestjs/common';
-import { CreateExisDto } from 'src/exis/dto/create-exis.dto';
+import { UpdateExisDto } from './dto/update-exis.dto';
+import { CreateExisDto } from 'src/modules/exis/dto/create-exis.dto';
 import { Exis } from 'src/schemas/exis.schema';
 import { ExisService } from './exis.service';
 

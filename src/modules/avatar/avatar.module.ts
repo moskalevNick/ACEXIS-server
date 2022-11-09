@@ -2,6 +2,7 @@ import { Global, Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { Avatar, AvatarSchema } from 'src/schemas/avatar.schema';
 import { AvatarService } from './avatar.service';
+import { AvatarController } from './avatar.controller';
 
 @Global()
 @Module({
@@ -10,5 +11,6 @@ import { AvatarService } from './avatar.service';
   ],
   providers: [AvatarService],
   exports: [AvatarService],
+  controllers: [AvatarController],
 })
 export class AvatarModule {}

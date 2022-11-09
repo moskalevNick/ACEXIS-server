@@ -14,8 +14,8 @@ import {
   UploadedFile,
   UseInterceptors,
 } from '@nestjs/common';
-import { CreateClientDto } from 'src/client/dto/create-client.dto';
-import { UpdateClientDto } from 'src/client/dto/update-client.dto';
+import { CreateClientDto } from 'src/modules/client/dto/create-client.dto';
+import { UpdateClientDto } from 'src/modules/client/dto/update-client.dto';
 import { Client } from 'src/schemas/client.schema';
 import { ClientService } from './client.service';
 
@@ -58,7 +58,7 @@ export class ClientController {
   }
 
   @Delete('/avatar/:id')
-  public async deleteAvatar(@Param('id') id: string): Promise<void> {
+  public async deleteAvatar(@Param('id') id: string): Promise<string> {
     return this.clientService.deleteAvatar(id);
   }
 

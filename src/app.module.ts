@@ -1,9 +1,9 @@
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { ConfigModule } from '@nestjs/config';
-import { ClientModule } from './client/client.module';
-import { ExisModule } from './exis/exis.module';
-import { AvatarModule } from './avatar/avatar.module';
+import { ClientModule } from './modules/client/client.module';
+import { ExisModule } from './modules/exis/exis.module';
+import { AvatarModule } from './modules/avatar/avatar.module';
 
 @Module({
   imports: [

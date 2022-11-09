@@ -1,17 +1,19 @@
-import { ClientDocument } from './../schemas/client.schema';
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
+import { ClientDocument } from '../../schemas/client.schema';
 import { Client } from 'src/schemas/client.schema';
-import { CreateClientDto } from 'src/client/dto/create-client.dto';
-import { UpdateClientDto } from 'src/client/dto/update-client.dto';
+import { CreateClientDto } from 'src/modules/client/dto/create-client.dto';
+import { UpdateClientDto } from 'src/modules/client/dto/update-client.dto';
 import { FirebaseStorageProvider } from 'src/providers/firebase-storage.provider';
+import { AvatarService } from 'src/modules/avatar/avatar.service';
 
 @Injectable()
 export class ClientService {
   constructor(
     @InjectModel(Client.name) private clientModel: Model<ClientDocument>,
     private storageProvider: FirebaseStorageProvider,
+    private avatarService: AvatarService,
   ) {}
 
   async getAll(): Promise<Client[]> {
@@ -57,11 +59,14 @@ export class ClientService {
     return `client ${client.name} was successfully updated`;
   }
 
-  async deleteAvatar(id: string): Promise<void> {
-    const client = await this.getbyId(id);
+  async deleteAvatar(id: string): Promise<string> {
+    const avatar = await this.avatarService.getbyId(id);
+    const client = await this.getbyId(avatar.clientId);
+    await this.update(client.id, {
+      ...client,
+      imgIds: client.imgIds.filter((el) => id !== el),
+    });
 
-    const result = await this.storageProvider.delete();
-
-    return;
+    return await this.storageProvider.delete(avatar);
   }
 }
