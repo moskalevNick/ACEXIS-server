@@ -1,12 +1,14 @@
-import { Controller, Get } from '@nestjs/common';
-import { AppService } from './app.service';
+import { Controller, Request, Post, UseGuards } from '@nestjs/common';
+import { AuthService } from './modules/auth/auth.service';
+import { LocalAuthGuard } from './modules/auth/local-auth.guard';
 
 @Controller()
 export class AppController {
-  constructor(private readonly appService: AppService) {}
+  constructor(private authService: AuthService) {}
 
-  @Get()
-  getHello(): string {
-    return 'acexis api';
+  @UseGuards(LocalAuthGuard)
+  @Post('auth/login')
+  async login(@Request() req: any) {
+    return this.authService.login(req.user);
   }
 }

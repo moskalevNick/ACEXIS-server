@@ -8,21 +8,23 @@ import {
   HttpCode,
   HttpStatus,
   Param,
-  Patch,
   Post,
   Put,
   UploadedFile,
+  UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
 import { CreateClientDto } from 'src/modules/client/dto/create-client.dto';
 import { UpdateClientDto } from 'src/modules/client/dto/update-client.dto';
 import { Client } from 'src/schemas/client.schema';
 import { ClientService } from './client.service';
+import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 
 @Controller('client')
 export class ClientController {
   constructor(private readonly clientService: ClientService) {}
 
+  // @UseGuards(JwtAuthGuard)
   @Get()
   getAll(): Promise<Client[]> {
     return this.clientService.getAll();
