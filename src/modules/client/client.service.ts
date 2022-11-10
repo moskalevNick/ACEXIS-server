@@ -1,8 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { ClientDocument } from '../../schemas/client.schema';
-import { Client } from 'src/schemas/client.schema';
+import { ClientDocument } from './client.schema';
+import { Client } from 'src/modules/client/client.schema';
 import { CreateClientDto } from 'src/modules/client/dto/create-client.dto';
 import { UpdateClientDto } from 'src/modules/client/dto/update-client.dto';
 import { FirebaseStorageProvider } from 'src/providers/firebase-storage.provider';

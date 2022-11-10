@@ -1,6 +1,6 @@
 import { Controller, Get, Param } from '@nestjs/common';
 import { AvatarService } from './avatar.service';
-import { Avatar } from 'src/schemas/avatar.schema';
+import { Avatar } from 'src/modules/avatar/avatar.schema';
 
 @Controller('avatar')
 export class AvatarController {

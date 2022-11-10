@@ -1,7 +1,7 @@
 import { v4 as uuidv4 } from 'uuid';
 import { Injectable } from '@nestjs/common';
 import { getStorage, ref, uploadBytes, deleteObject } from 'firebase/storage';
-import { Avatar } from 'src/schemas/avatar.schema';
+import { Avatar } from 'src/modules/avatar/avatar.schema';
 import { AvatarService } from 'src/modules/avatar/avatar.service';
 const path = require('path');
 

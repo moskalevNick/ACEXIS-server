@@ -1,8 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { ExisDocument } from '../../schemas/exis.schema';
-import { Exis } from 'src/schemas/exis.schema';
+import { ExisDocument } from './exis.schema';
+import { Exis } from 'src/modules/exis/exis.schema';
 import { CreateExisDto } from './dto/create-exis.dto';
 import { UpdateExisDto } from './dto/update-exis.dto';
 

@@ -12,7 +12,7 @@ import {
 } from '@nestjs/common';
 import { UpdateExisDto } from './dto/update-exis.dto';
 import { CreateExisDto } from 'src/modules/exis/dto/create-exis.dto';
-import { Exis } from 'src/schemas/exis.schema';
+import { Exis } from 'src/modules/exis/exis.schema';
 import { ExisService } from './exis.service';
 
 @Controller('exis')

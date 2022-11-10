@@ -2,7 +2,7 @@ import { Global, Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { ExisController } from './exis.controller';
 import { ExisService } from './exis.service';
-import { Exis, ExisSchema } from 'src/schemas/exis.schema';
+import { Exis, ExisSchema } from 'src/modules/exis/exis.schema';
 
 @Global()
 @Module({
