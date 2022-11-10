@@ -31,6 +31,9 @@ export class Client {
 
   @Prop()
   exisIds: [string];
+
+  @Prop()
+  userId: string;
 }
 
 export const ClientSchema = SchemaFactory.createForClass(Client);

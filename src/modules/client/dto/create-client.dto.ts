@@ -7,4 +7,5 @@ export class CreateClientDto {
   readonly pinnedExisId: string;
   readonly bills: number[];
   readonly imgIds: string[];
+  readonly userId: string;
 }

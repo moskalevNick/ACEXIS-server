@@ -18,7 +18,6 @@ import { CreateClientDto } from 'src/modules/client/dto/create-client.dto';
 import { UpdateClientDto } from 'src/modules/client/dto/update-client.dto';
 import { Client } from 'src/schemas/client.schema';
 import { ClientService } from './client.service';
-import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 
 @Controller('client')
 export class ClientController {
@@ -30,7 +29,7 @@ export class ClientController {
     return this.clientService.getAll();
   }
 
-  @Get('/:id')
+  @Get(':id')
   getOne(@Param('id') id: string): Promise<Client> {
     return this.clientService.getbyId(id);
   }
@@ -42,7 +41,7 @@ export class ClientController {
     return this.clientService.create(createClientDto);
   }
 
-  @Put('/:id')
+  @Put(':id')
   update(
     @Body() updateClientDto: UpdateClientDto,
     @Param('id') id: string,
@@ -50,7 +49,7 @@ export class ClientController {
     return this.clientService.update(id, updateClientDto);
   }
 
-  @Post('/avatar/:id')
+  @Post('avatar/:id')
   @UseInterceptors(FileInterceptor('file'))
   public async uploadAvatar(
     @Param('id') id: string,
@@ -59,7 +58,7 @@ export class ClientController {
     return this.clientService.uploadAvatar(id, file);
   }
 
-  @Delete('/avatar/:id')
+  @Delete('avatar/:id')
   public async deleteAvatar(@Param('id') id: string): Promise<string> {
     return this.clientService.deleteAvatar(id);
   }

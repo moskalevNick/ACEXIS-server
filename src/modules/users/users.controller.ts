@@ -1,35 +1,46 @@
 import {
-  Body,
   Controller,
   Get,
-  Header,
-  HttpCode,
-  HttpStatus,
-  Param,
   Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  UseGuards,
 } from '@nestjs/common';
-import { User } from 'src/schemas/user.schema';
-import { CreateUserDto } from './dto/create-user.dto';
 import { UsersService } from './users.service';
+import { CreateUserDto } from './dto/create-user.dto';
+import { UpdateUserDto } from './dto/update-user.dto';
+import { AccessTokenGuard } from 'src/commons/guards/accessToken.guard';
 
 @Controller('users')
-export class UserController {
-  constructor(private readonly userService: UsersService) {}
-
-  @Get()
-  getAll(): Promise<User[]> {
-    return this.userService.getAll();
-  }
-
-  @Get('/:id')
-  getOne(@Param('id') id: string): Promise<User> {
-    return this.userService.findOne(id);
-  }
+export class UsersController {
+  constructor(private readonly usersService: UsersService) {}
 
   @Post()
-  @HttpCode(HttpStatus.CREATED)
-  @Header('Cache-Control', 'none')
   create(@Body() createUserDto: CreateUserDto) {
-    return this.userService.create(createUserDto);
+    return this.usersService.create(createUserDto);
+  }
+
+  @Get()
+  findAll() {
+    return this.usersService.findAll();
+  }
+
+  @Get(':id')
+  findById(@Param('id') id: string) {
+    return this.usersService.findById(id);
+  }
+
+  @UseGuards(AccessTokenGuard)
+  @Patch(':id')
+  update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
+    return this.usersService.update(id, updateUserDto);
+  }
+
+  @UseGuards(AccessTokenGuard)
+  @Delete(':id')
+  remove(@Param('id') id: string) {
+    return this.usersService.remove(id);
   }
 }
