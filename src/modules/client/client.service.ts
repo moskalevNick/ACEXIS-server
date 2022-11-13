@@ -17,10 +17,44 @@ export class ClientService {
   ) {}
 
   async getAll(): Promise<Client[]> {
-    return this.clientModel.find().exec();
+    return this.clientModel.aggregate([
+      {
+        $lookup: {
+          from: 'avatars',
+          localField: 'imgIds',
+          foreignField: 'id',
+          as: 'avatars',
+        },
+      },
+      {
+        $replaceRoot: {
+          newRoot: {
+            $mergeObjects: [
+              '$$ROOT',
+              {
+                avatarLink: {
+                  $arrayElemAt: ['$avatars.publicUrl', -1],
+                },
+              },
+            ],
+          },
+        },
+      },
+      {
+        $lookup: {
+          from: 'exis',
+          localField: 'exisIds',
+          foreignField: 'id',
+          as: 'exises',
+        },
+      },
+      {
+        $unset: ['avatars', 'exisIds'],
+      },
+    ]);
   }
 
-  async getbyId(id: string): Promise<Client> {
+  async getbyId(id: string): Promise<any> {
     return this.clientModel.findOne({ id }).lean();
   }
 
@@ -34,13 +68,12 @@ export class ClientService {
   }
 
   async update(id: string, clientDto: UpdateClientDto): Promise<Client> {
-    return this.clientModel.findOneAndUpdate({ id }, clientDto, {
-      new: true,
-    });
+    return this.clientModel.findOneAndUpdate({ id }, clientDto, { new: true });
   }
 
   async uploadAvatar(id: string, file: Express.Multer.File): Promise<string> {
     const client = await this.getbyId(id);
+
     const avatarId = await this.storageProvider.upload(
       file,
       'client-avatars',
@@ -59,14 +92,13 @@ export class ClientService {
     return `client ${client.name} was successfully updated`;
   }
 
-  async deleteAvatar(id: string): Promise<string> {
+  async deleteAvatar(id: string) {
     const avatar = await this.avatarService.getbyId(id);
     const client = await this.getbyId(avatar.clientId);
     await this.update(client.id, {
       ...client,
       imgIds: client.imgIds.filter((el) => id !== el),
     });
-
     return await this.storageProvider.delete(avatar);
   }
 }

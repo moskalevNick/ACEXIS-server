@@ -13,6 +13,9 @@ export class Exis {
 
   @Prop()
   id: string;
+
+  @Prop()
+  clientId: string;
 }
 
 export const ExisSchema = SchemaFactory.createForClass(Exis);

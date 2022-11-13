@@ -6,8 +6,8 @@ import { Avatar } from 'src/modules/avatar/avatar.schema';
 export class AvatarController {
   constructor(private readonly avatarService: AvatarService) {}
 
-  @Get('/:id')
-  getOne(@Param('id') id: string): Promise<Avatar> {
-    return this.avatarService.getbyId(id);
+  @Get('/:clientId')
+  getOne(@Param('clientId') clientId: string): Promise<Avatar[]> {
+    return this.avatarService.getByClientId(clientId);
   }
 }

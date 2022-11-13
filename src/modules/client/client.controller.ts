@@ -60,7 +60,8 @@ export class ClientController {
 
   @Delete('avatar/:id')
   public async deleteAvatar(@Param('id') id: string): Promise<string> {
-    return this.clientService.deleteAvatar(id);
+    // return this.clientService.deleteAvatar(id);
+    return;
   }
 
   @Delete('/:id')

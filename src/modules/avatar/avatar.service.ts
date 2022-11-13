@@ -18,4 +18,8 @@ export class AvatarService {
   async getbyId(id: string): Promise<Avatar> {
     return this.avatarModel.findOne({ id });
   }
+
+  async getByClientId(clientId: string): Promise<Avatar[]> {
+    return this.avatarModel.find({ clientId });
+  }
 }

@@ -1,12 +1,12 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Document } from 'mongoose';
+import { Document, Types } from 'mongoose';
 
 export type AvatarDocument = Avatar & Document;
 
 @Schema()
 export class Avatar {
-  @Prop()
-  id: string;
+  @Prop({ type: Types.ObjectId })
+  _id: Types.ObjectId;
 
   @Prop()
   path: string;

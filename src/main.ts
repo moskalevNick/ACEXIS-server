@@ -2,11 +2,13 @@ import { NestFactory } from '@nestjs/core';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { AppModule } from './app.module';
 import { initializeFirebaseApp } from './config/firebase.config';
+import { corsOptions } from './etc/corsOptions';
 
 initializeFirebaseApp();
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+  app.enableCors(corsOptions);
 
   const config = new DocumentBuilder()
     .setTitle('Exis API')
