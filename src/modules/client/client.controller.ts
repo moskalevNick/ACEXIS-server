@@ -10,6 +10,7 @@ import {
   Param,
   Post,
   Put,
+  Req,
   UploadedFile,
   UseGuards,
   UseInterceptors,
@@ -23,7 +24,6 @@ import { ClientService } from './client.service';
 export class ClientController {
   constructor(private readonly clientService: ClientService) {}
 
-  // @UseGuards(JwtAuthGuard)
   @Get()
   getAll(): Promise<Client[]> {
     return this.clientService.getClientsByUserId();
@@ -37,8 +37,8 @@ export class ClientController {
   @Post()
   @HttpCode(HttpStatus.CREATED)
   @Header('Cache-Control', 'none')
-  create(@Body() createClientDto) {
-    return this.clientService.create(createClientDto);
+  create(@Body() createClientDto, @Req() request: Request) {
+    return this.clientService.create(createClientDto, request);
   }
 
   @Put(':id')

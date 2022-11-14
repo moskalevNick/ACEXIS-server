@@ -1,12 +1,15 @@
 import { Injectable } from '@nestjs/common';
+import jwt_decode from 'jwt-decode';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
-import { ClientDocument } from './client.schema';
 import { Client } from 'src/modules/client/client.schema';
-import { CreateClientDto } from 'src/modules/client/dto/create-client.dto';
-import { UpdateClientDto } from 'src/modules/client/dto/update-client.dto';
+import { CreateClientDto } from './dto/create-client.dto';
+import { UpdateClientDto } from './dto/update-client.dto';
+import { ClientDocument } from './client.schema';
+import { AvatarService } from '../avatar/avatar.service';
+import { UsersService } from '../users/users.service';
+import { AccessTokenGuard } from 'src/commons/guards/accessToken.guard';
 import { FirebaseStorageProvider } from 'src/providers/firebase-storage.provider';
-import { AvatarService } from 'src/modules/avatar/avatar.service';
 
 @Injectable()
 export class ClientService {
@@ -58,19 +61,26 @@ export class ClientService {
     return this.clientModel.findOne({ id }).lean();
   }
 
-  async create(clientDto): Promise<Client> {
+  async create(clientDto, request): Promise<Client> {
+    const jwt = request.headers.authorization.replace('Bearer ', '');
+    const decoded: { sub: string } = jwt_decode(jwt);
+    console.log(decoded);
+
     const client = {
       name: 'Vladik',
       status: 'moon',
       coincidents: [],
       pinnedExisId: '',
       bills: [],
-      user: new Types.ObjectId('6371fc0a23ad21a3814e548c'),
+      user: new Types.ObjectId(decoded.sub),
       phoneNumber: '+375447777778',
     };
 
     const newClient = new this.clientModel(client);
-    return newClient.save();
+    console.log(newClient);
+
+    // return newClient.save();
+    return;
   }
 
   async getClientsByUserId() {
