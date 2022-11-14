@@ -19,14 +19,16 @@ import { CreateClientDto } from 'src/modules/client/dto/create-client.dto';
 import { UpdateClientDto } from 'src/modules/client/dto/update-client.dto';
 import { Client } from 'src/modules/client/client.schema';
 import { ClientService } from './client.service';
+import { AccessTokenGuard } from 'src/commons/guards/accessToken.guard';
 
 @Controller('clients')
 export class ClientController {
   constructor(private readonly clientService: ClientService) {}
 
+  @UseGuards(AccessTokenGuard)
   @Get()
-  getAll(): Promise<Client[]> {
-    return this.clientService.getClientsByUserId();
+  getAll(@Req() req): Promise<Client[]> {
+    return this.clientService.getClientsByUserId(req.user.userId);
   }
 
   @Get(':id')
@@ -34,11 +36,12 @@ export class ClientController {
     return this.clientService.getbyId(id);
   }
 
+  @UseGuards(AccessTokenGuard)
   @Post()
   @HttpCode(HttpStatus.CREATED)
   @Header('Cache-Control', 'none')
-  create(@Body() createClientDto, @Req() request: Request) {
-    return this.clientService.create(createClientDto, request);
+  create(@Body() createClientDto, @Req() req) {
+    return this.clientService.create(createClientDto, req.user.userId);
   }
 
   @Put(':id')
@@ -49,18 +52,18 @@ export class ClientController {
     return this.clientService.update(id, updateClientDto);
   }
 
-  @Post('avatar/:id')
+  @Post('image/:id')
   @UseInterceptors(FileInterceptor('file'))
-  public async uploadAvatar(
+  public async uploadImage(
     @Param('id') id: string,
     @UploadedFile() file: Express.Multer.File,
   ): Promise<string> {
-    return this.clientService.uploadAvatar(id, file);
+    return this.clientService.uploadImage(id, file);
   }
 
-  @Delete('avatar/:id')
-  public async deleteAvatar(@Param('id') id: string): Promise<string> {
-    // return this.clientService.deleteAvatar(id);
+  @Delete('image/:id')
+  public async deleteImage(@Param('id') id: string): Promise<string> {
+    // return this.clientService.deleteImage(id);
     return;
   }
 

@@ -1,12 +1,11 @@
 import { Injectable } from '@nestjs/common';
-import jwt_decode from 'jwt-decode';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 import { Client } from 'src/modules/client/client.schema';
 import { CreateClientDto } from './dto/create-client.dto';
 import { UpdateClientDto } from './dto/update-client.dto';
 import { ClientDocument } from './client.schema';
-import { AvatarService } from '../avatar/avatar.service';
+import { ImageService } from '../image/image.service';
 import { UsersService } from '../users/users.service';
 import { AccessTokenGuard } from 'src/commons/guards/accessToken.guard';
 import { FirebaseStorageProvider } from 'src/providers/firebase-storage.provider';
@@ -16,17 +15,17 @@ export class ClientService {
   constructor(
     @InjectModel(Client.name) private clientModel: Model<ClientDocument>,
     private storageProvider: FirebaseStorageProvider,
-    private avatarService: AvatarService,
+    private imageService: ImageService,
   ) {}
 
   async getAll(): Promise<Client[]> {
     return this.clientModel.aggregate([
       {
         $lookup: {
-          from: 'avatars',
+          from: 'images',
           localField: 'imgIds',
           foreignField: 'id',
-          as: 'avatars',
+          as: 'images',
         },
       },
       {
@@ -36,7 +35,7 @@ export class ClientService {
               '$$ROOT',
               {
                 avatarLink: {
-                  $arrayElemAt: ['$avatars.publicUrl', -1],
+                  $arrayElemAt: ['$images.publicUrl', -1],
                 },
               },
             ],
@@ -52,41 +51,27 @@ export class ClientService {
         },
       },
       {
-        $unset: ['avatars', 'exisIds'],
+        $unset: ['images', 'exisIds'],
       },
     ]);
   }
 
   async getbyId(id: string): Promise<any> {
-    return this.clientModel.findOne({ id }).lean();
+    return this.clientModel.findOne({ id });
   }
 
-  async create(clientDto, request): Promise<Client> {
-    const jwt = request.headers.authorization.replace('Bearer ', '');
-    const decoded: { sub: string } = jwt_decode(jwt);
-    console.log(decoded);
-
+  async create(clientDto, userId): Promise<Client> {
     const client = {
-      name: 'Vladik',
-      status: 'moon',
-      coincidents: [],
-      pinnedExisId: '',
-      bills: [],
-      user: new Types.ObjectId(decoded.sub),
-      phoneNumber: '+375447777778',
+      ...clientDto,
+      user: new Types.ObjectId(userId),
     };
 
     const newClient = new this.clientModel(client);
-    console.log(newClient);
-
-    // return newClient.save();
-    return;
+    return newClient.save();
   }
 
-  async getClientsByUserId() {
-    return this.clientModel.find({
-      user: new Types.ObjectId('6371fc0a23ad21a3814e548c'),
-    });
+  async getClientsByUserId(id: Types.ObjectId) {
+    return await this.clientModel.find({ userId: id }).populate('images');
   }
 
   async remove(id: string): Promise<Client> {
@@ -97,34 +82,31 @@ export class ClientService {
     return this.clientModel.findOneAndUpdate({ id }, clientDto, { new: true });
   }
 
-  async uploadAvatar(id: string, file: Express.Multer.File): Promise<string> {
+  async uploadImage(id: string, file: Express.Multer.File): Promise<string> {
     const client = await this.getbyId(id);
 
-    const avatarId = await this.storageProvider.upload(
+    const { fullName, name } = await this.storageProvider.upload(
       file,
-      'client-avatars',
+      'client-images',
       id,
     );
 
-    if (client) {
-      try {
-        this.update(id, { ...client, imgIds: [...client.imgIds, avatarId] });
-      } catch (e) {
-        console.log('something went wrong: ', e);
-        return "can't add photo to client";
-      }
-    } else return 'client not found';
+    this.imageService.create({
+      path: fullName,
+      clientId: client.id,
+      publicUrl: `https://firebasestorage.googleapis.com/v0/b/acexis-c375d.appspot.com/o/client-images%2F${name}?alt=media`,
+    });
 
     return `client ${client.name} was successfully updated`;
   }
 
-  async deleteAvatar(id: string) {
-    // const avatar = await this.avatarService.getbyId(id);
-    // const client = await this.getbyId(avatar.clientId);
+  async deleteImage(id: string) {
+    // const images = await this.imageService.getbyId(id);
+    // const client = await this.getbyId(images.clientId);
     // await this.update(client.id, {
     //   ...client,
     //   imgIds: client.imgIds.filter((el) => id !== el),
     // });
-    // return await this.storageProvider.delete(avatar);
+    // return await this.storageProvider.delete(images);
   }
 }

@@ -3,10 +3,10 @@ import { Document, Types } from 'mongoose';
 
 import { Client } from '../client/client.schema';
 
-export type AvatarDocument = Avatar & Document;
+export type ImageDocument = Image & Document;
 
 @Schema()
-export class Avatar {
+export class Image {
   @Prop()
   path: string;
 
@@ -17,4 +17,4 @@ export class Avatar {
   client: Client;
 }
 
-export const AvatarSchema = SchemaFactory.createForClass(Avatar);
+export const ImageSchema = SchemaFactory.createForClass(Image);

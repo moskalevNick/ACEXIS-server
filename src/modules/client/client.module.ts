@@ -1,3 +1,4 @@
+import { AuthModule } from './../auth/auth.module';
 import { Global, Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { FirebaseStorageProvider } from '../../providers/firebase-storage.provider';
@@ -9,9 +10,10 @@ import { Client, ClientSchema } from 'src/modules/client/client.schema';
 @Module({
   imports: [
     MongooseModule.forFeature([{ name: Client.name, schema: ClientSchema }]),
+    AuthModule,
   ],
-  providers: [ClientService, FirebaseStorageProvider],
+  providers: [ClientService, FirebaseStorageProvider, AuthModule],
   controllers: [ClientController],
-  exports: [ClientService],
+  exports: [ClientService, AuthModule],
 })
 export class ClientModule {}
