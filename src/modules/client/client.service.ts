@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import { Model, Types } from 'mongoose';
 import { ClientDocument } from './client.schema';
 import { Client } from 'src/modules/client/client.schema';
 import { CreateClientDto } from 'src/modules/client/dto/create-client.dto';
@@ -58,9 +58,25 @@ export class ClientService {
     return this.clientModel.findOne({ id }).lean();
   }
 
-  async create(clientDto: CreateClientDto): Promise<Client> {
-    const newClient = new this.clientModel(clientDto);
+  async create(clientDto): Promise<Client> {
+    const client = {
+      name: 'Vladik',
+      status: 'moon',
+      coincidents: [],
+      pinnedExisId: '',
+      bills: [],
+      user: new Types.ObjectId('6371fc0a23ad21a3814e548c'),
+      phoneNumber: '+375447777778',
+    };
+
+    const newClient = new this.clientModel(client);
     return newClient.save();
+  }
+
+  async getClientsByUserId() {
+    return this.clientModel.find({
+      user: new Types.ObjectId('6371fc0a23ad21a3814e548c'),
+    });
   }
 
   async remove(id: string): Promise<Client> {
@@ -93,12 +109,12 @@ export class ClientService {
   }
 
   async deleteAvatar(id: string) {
-    const avatar = await this.avatarService.getbyId(id);
-    const client = await this.getbyId(avatar.clientId);
-    await this.update(client.id, {
-      ...client,
-      imgIds: client.imgIds.filter((el) => id !== el),
-    });
-    return await this.storageProvider.delete(avatar);
+    // const avatar = await this.avatarService.getbyId(id);
+    // const client = await this.getbyId(avatar.clientId);
+    // await this.update(client.id, {
+    //   ...client,
+    //   imgIds: client.imgIds.filter((el) => id !== el),
+    // });
+    // return await this.storageProvider.delete(avatar);
   }
 }

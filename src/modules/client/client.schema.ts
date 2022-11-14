@@ -1,43 +1,28 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document, Types } from 'mongoose';
-import { Avatar } from '../avatar/avatar.schema';
+import { User } from '../users/user.schema';
 
 export type ClientDocument = Client & Document;
 
 @Schema()
 export class Client {
-  @Prop({ type: Types.ObjectId })
-  _id: Types.ObjectId;
-
   @Prop()
   name: string;
 
   @Prop()
   status: string;
 
-  @Prop()
-  coincidentIds: string[];
+  @Prop({ type: [Types.ObjectId], ref: Client.name })
+  coincidents: Client[];
 
   @Prop()
-  visits: { date: Date; exisId?: string }[];
-
-  @Prop()
-  pinnedExisId: string;
+  pinnedExisId: Types.ObjectId;
 
   @Prop()
   bills: number[];
 
-  @Prop()
-  imgIds: string[];
-
-  @Prop({ type: [Types.ObjectId], ref: Avatar.name })
-  images: Avatar[];
-
-  @Prop()
-  exisIds: string[];
-
-  @Prop()
-  userId: string;
+  @Prop({ type: Types.ObjectId, ref: User.name })
+  user: User;
 
   @Prop()
   phoneNumber: string;

@@ -19,28 +19,28 @@ import { ExisService } from './exis.service';
 export class ExisController {
   constructor(private readonly exisService: ExisService) {}
 
-  @Post()
-  @HttpCode(HttpStatus.CREATED)
-  @Header('Cache-Control', 'none')
-  create(@Body() createExisDto: CreateExisDto) {
-    return this.exisService.create(createExisDto);
-  }
+  // @Post()
+  // @HttpCode(HttpStatus.CREATED)
+  // @Header('Cache-Control', 'none')
+  // create(@Body() createExisDto: CreateExisDto) {
+  //   return this.exisService.create(createExisDto);
+  // }
 
   @Get('/:id')
   getOne(@Param('id') id: string): Promise<Exis> {
     return this.exisService.getbyId(id);
   }
 
-  @Put('/:id')
-  update(
-    @Body() updateExisDto: UpdateExisDto,
-    @Param('id') id: string,
-  ): Promise<Exis> {
-    return this.exisService.update(id, updateExisDto);
-  }
+  // @Put('/:id')
+  // update(
+  //   @Body() updateExisDto: UpdateExisDto,
+  //   @Param('id') id: string,
+  // ): Promise<Exis> {
+  //   return this.exisService.update(id, updateExisDto);
+  // }
 
-  @Delete('/:id')
-  remove(@Param('id') id: string): Promise<Exis> {
-    return this.exisService.remove(id);
-  }
+  // @Delete('/:id')
+  // remove(@Param('id') id: string): Promise<Exis> {
+  //   return this.exisService.remove(id);
+  // }
 }

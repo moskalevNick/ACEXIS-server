@@ -6,6 +6,7 @@ import { ExisModule } from './modules/exis/exis.module';
 import { AvatarModule } from './modules/avatar/avatar.module';
 import { UsersModule } from './modules/users/users.module';
 import { AuthModule } from './modules/auth/auth.module';
+import { VisitModule } from './modules/visit/visit.module';
 
 @Module({
   imports: [
@@ -16,6 +17,7 @@ import { AuthModule } from './modules/auth/auth.module';
     AvatarModule,
     UsersModule,
     AuthModule,
+    VisitModule,
   ],
 })
 export class AppModule {}

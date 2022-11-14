@@ -19,14 +19,14 @@ import { UpdateClientDto } from 'src/modules/client/dto/update-client.dto';
 import { Client } from 'src/modules/client/client.schema';
 import { ClientService } from './client.service';
 
-@Controller('client')
+@Controller('clients')
 export class ClientController {
   constructor(private readonly clientService: ClientService) {}
 
   // @UseGuards(JwtAuthGuard)
   @Get()
   getAll(): Promise<Client[]> {
-    return this.clientService.getAll();
+    return this.clientService.getClientsByUserId();
   }
 
   @Get(':id')
@@ -37,7 +37,7 @@ export class ClientController {
   @Post()
   @HttpCode(HttpStatus.CREATED)
   @Header('Cache-Control', 'none')
-  create(@Body() createClientDto: CreateClientDto) {
+  create(@Body() createClientDto) {
     return this.clientService.create(createClientDto);
   }
 

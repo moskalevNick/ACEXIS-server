@@ -1,5 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Document } from 'mongoose';
+import { Document, Types } from 'mongoose';
+import { Client } from '../client/client.schema';
 
 export type ExisDocument = Exis & Document;
 
@@ -11,11 +12,8 @@ export class Exis {
   @Prop()
   date: Date;
 
-  @Prop()
-  id: string;
-
-  @Prop()
-  clientId: string;
+  @Prop({ type: Types.ObjectId, ref: Client.name })
+  client: Client;
 }
 
 export const ExisSchema = SchemaFactory.createForClass(Exis);

@@ -18,34 +18,34 @@ export class ExisService {
     return this.exisModel.findOne({ id });
   }
 
-  async create(exisDto: CreateExisDto): Promise<Exis> {
-    const client = await this.clientService.getbyId(exisDto.clientId);
+  // async create(exisDto: CreateExisDto): Promise<Exis> {
+  //   const client = await this.clientService.getbyId(exisDto.clientId);
 
-    await this.clientService.update(client.id, {
-      ...client,
-      exisIds: [...client.exisIds, exisDto.id],
-    });
+  //   await this.clientService.update(client.id, {
+  //     ...client,
+  //     exisIds: [...client.exisIds, exisDto.id],
+  //   });
 
-    const newExis = new this.exisModel(exisDto);
+  //   const newExis = new this.exisModel(exisDto);
 
-    return newExis.save();
-  }
+  //   return newExis.save();
+  // }
 
-  async remove(id: string): Promise<Exis> {
-    const exis = await this.getbyId(id);
+  // async remove(id: string): Promise<Exis> {
+  //   const exis = await this.getbyId(id);
 
-    const client = await this.clientService.getbyId(exis.clientId);
-    await this.clientService.update(client.id, {
-      ...client,
-      exisIds: client.exisIds.filter((id) => id !== exis.id),
-    });
+  //   const client = await this.clientService.getbyId(exis.clientId);
+  //   await this.clientService.update(client.id, {
+  //     ...client,
+  //     exisIds: client.exisIds.filter((id) => id !== exis.id),
+  //   });
 
-    return this.exisModel.findOneAndDelete({ id });
-  }
+  //   return this.exisModel.findOneAndDelete({ id });
+  // }
 
-  async update(id: string, exisDto: UpdateExisDto): Promise<Exis> {
-    return this.exisModel.findOneAndUpdate({ id }, exisDto, {
-      new: true,
-    });
-  }
+  // async update(id: string, exisDto: UpdateExisDto): Promise<Exis> {
+  //   return this.exisModel.findOneAndUpdate({ id }, exisDto, {
+  //     new: true,
+  //   });
+  // }
 }
