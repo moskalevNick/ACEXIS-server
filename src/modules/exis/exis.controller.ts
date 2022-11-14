@@ -8,28 +8,38 @@ import {
   HttpStatus,
   Param,
   Post,
-  Put,
 } from '@nestjs/common';
+import { Client } from '@prisma/client';
 import { UpdateExisDto } from './dto/update-exis.dto';
 import { CreateExisDto } from 'src/modules/exis/dto/create-exis.dto';
-import { Exis } from 'src/modules/exis/exis.schema';
 import { ExisService } from './exis.service';
 
-@Controller('exis')
+@Controller('exises')
 export class ExisController {
   constructor(private readonly exisService: ExisService) {}
 
-  // @Post()
-  // @HttpCode(HttpStatus.CREATED)
-  // @Header('Cache-Control', 'none')
-  // create(@Body() createExisDto: CreateExisDto) {
-  //   return this.exisService.create(createExisDto);
-  // }
-
-  @Get('/:id')
-  getOne(@Param('id') id: string): Promise<Exis> {
-    return this.exisService.getbyId(id);
+  @Get('/:clientId')
+  getExisesByClientId(@Param('clientId') clientId: Client['id']) {
+    return this.exisService.getExisesByClientId(clientId);
   }
+
+  @Post()
+  @HttpCode(HttpStatus.CREATED)
+  @Header('Cache-Control', 'none')
+  create() {
+    return this.exisService.create(
+      {
+        date: new Date(),
+        text: 'New Text 1',
+      },
+      '63727fca54802d9ddd3b68b6',
+    );
+  }
+
+  // @Get('/:id')
+  // getOne(@Param('id') id: string): Promise<Exis> {
+  //   return this.exisService.getbyId(id);
+  // }
 
   // @Put('/:id')
   // update(

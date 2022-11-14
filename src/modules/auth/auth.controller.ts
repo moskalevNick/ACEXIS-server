@@ -10,27 +10,27 @@ import { AuthDto } from './dto/auth.dto';
 export class AuthController {
   constructor(private authService: AuthService) {}
 
-  @Post('signup')
-  signup(@Body() createUserDto: CreateUserDto) {
-    return this.authService.signUp(createUserDto);
-  }
+  // @Post('signup')
+  // signup(@Body() createUserDto: CreateUserDto) {
+  //   return this.authService.signUp(createUserDto);
+  // }
 
-  @Post('signin')
-  signin(@Body() data: AuthDto) {
-    return this.authService.signIn(data);
-  }
+  // @Post('signin')
+  // signin(@Body() data: AuthDto) {
+  //   return this.authService.signIn(data);
+  // }
 
-  @UseGuards(AccessTokenGuard)
-  @Get('logout')
-  logout(@Req() req: Request) {
-    this.authService.logout(req.user['userId']);
-  }
+  // @UseGuards(AccessTokenGuard)
+  // @Get('logout')
+  // logout(@Req() req: Request) {
+  //   this.authService.logout(req.user['userId']);
+  // }
 
-  @UseGuards(RefreshTokenGuard)
-  @Get('refresh')
-  refreshTokens(@Req() req: Request) {
-    const userId = req.user['userId'];
-    const refreshToken = req.user['refreshToken'];
-    return this.authService.refreshTokens(userId, refreshToken);
-  }
+  // @UseGuards(RefreshTokenGuard)
+  // @Get('refresh')
+  // refreshTokens(@Req() req: Request) {
+  //   const userId = req.user['userId'];
+  //   const refreshToken = req.user['refreshToken'];
+  //   return this.authService.refreshTokens(userId, refreshToken);
+  // }
 }

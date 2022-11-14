@@ -1,29 +1,23 @@
 import { Injectable } from '@nestjs/common';
-import { InjectModel } from '@nestjs/mongoose';
-import { Model, Types } from 'mongoose';
-import { CreateImageDto } from './dto/create-image.dto';
-import { ImageDocument, Image } from './image.schema';
+import { Prisma, Image } from '@prisma/client';
+
+import { PrismaService } from '../prisma/prisma.service';
 
 @Injectable()
 export class ImageService {
-  constructor(
-    @InjectModel(Image.name) private imageModel: Model<ImageDocument>,
-  ) {}
+  constructor(private prisma: PrismaService) {}
 
-  async create(imageDto: CreateImageDto): Promise<Image> {
-    const candidateImage = {
-      ...imageDto,
-      client: new Types.ObjectId(imageDto.clientId),
-    };
-    const newImage = new this.imageModel(candidateImage);
-    return newImage.save();
+  async create(imageDto: Prisma.ImageUncheckedCreateInput): Promise<Image> {
+    const newImage = await this.prisma.image.create({ data: imageDto });
+
+    return newImage;
   }
 
-  async getbyId(id: string): Promise<Image> {
-    return this.imageModel.findOne({ id });
-  }
+  // async getbyId(id: string): Promise<Image> {
+  //   return this.imageModel.findOne({ id });
+  // }
 
-  async getByClientId(clientId: string): Promise<Image[]> {
-    return this.imageModel.find({ clientId });
-  }
+  // async getByClientId(clientId: string): Promise<Image[]> {
+  //   return this.imageModel.find({ clientId });
+  // }
 }

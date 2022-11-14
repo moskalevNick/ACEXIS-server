@@ -1,7 +1,6 @@
 import { v4 as uuidv4 } from 'uuid';
 import { Injectable } from '@nestjs/common';
 import { getStorage, ref, uploadBytes, deleteObject } from 'firebase/storage';
-import { Image } from 'src/modules/image/image.schema';
 import { ImageService } from 'src/modules/image/image.service';
 
 import path from 'path';
@@ -30,15 +29,15 @@ export class FirebaseStorageProvider {
     return { fullName, name: uploaded.metadata.name };
   }
 
-  public async delete(image: Image): Promise<string> {
-    const storage = getStorage();
-    const fileRef = ref(storage, image.path);
-    try {
-      await deleteObject(fileRef);
-    } catch (e) {
-      return `can't remove this image`;
-    }
+  // public async delete(image: Image): Promise<string> {
+  //   const storage = getStorage();
+  //   const fileRef = ref(storage, image.path);
+  //   try {
+  //     await deleteObject(fileRef);
+  //   } catch (e) {
+  //     return `can't remove this image`;
+  //   }
 
-    return `image successfully deleted`;
-  }
+  //   return `image successfully deleted`;
+  // }
 }

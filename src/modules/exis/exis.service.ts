@@ -1,21 +1,37 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { ExisDocument } from './exis.schema';
-import { Exis } from 'src/modules/exis/exis.schema';
+
 import { CreateExisDto } from './dto/create-exis.dto';
 import { UpdateExisDto } from './dto/update-exis.dto';
 import { ClientService } from '../client/client.service';
+import { Client, Exis, Prisma } from '@prisma/client';
+import { PrismaService } from '../prisma/prisma.service';
 
 @Injectable()
 export class ExisService {
-  constructor(
-    @InjectModel(Exis.name) private exisModel: Model<ExisDocument>,
-    private clientService: ClientService,
-  ) {}
+  constructor(private prisma: PrismaService) {}
 
-  async getbyId(id: string): Promise<Exis> {
-    return this.exisModel.findOne({ id });
+  async getExisesByClientId(clientId: Client['id']): Promise<Exis[]> {
+    const exises = await this.prisma.exis.findMany({
+      where: { clientId },
+    });
+
+    return exises;
+  }
+
+  async create(
+    exisDto: Omit<Prisma.ExisCreateInput, 'client'>,
+    clientId: Client['id'],
+  ) {
+    const data: Prisma.ExisUncheckedCreateInput = {
+      ...exisDto,
+      clientId,
+    };
+
+    const createdExis = await this.prisma.exis.create({ data });
+
+    return createdExis;
   }
 
   // async create(exisDto: CreateExisDto): Promise<Exis> {
