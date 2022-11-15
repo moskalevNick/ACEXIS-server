@@ -5,8 +5,6 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { AuthGuard } from '@nestjs/passport';
-import jwt_decode from 'jwt-decode';
 import { Observable } from 'rxjs';
 
 @Injectable()

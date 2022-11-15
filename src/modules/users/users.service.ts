@@ -26,13 +26,24 @@ export class UsersService {
     });
   }
 
-  // async findById(id: string): Promise<UserDocument> {
-  //   return this.userModel.findById(id);
-  // }
+  async findById(id: User['id']): Promise<User> {
+    return this.prisma.user.findUnique({
+      where: { id },
+    });
+  }
 
-  // async findByUsername(username: string): Promise<UserDocument> {
-  //   return this.userModel.findOne({ username }).exec();
-  // }
+  async findByUsername(username: User['username']): Promise<any> {
+    return this.prisma.user.findFirst({
+      where: { username },
+    });
+  }
+
+  async updateRefreshToken(id: User['id'], refreshToken: User['refreshToken']) {
+    this.prisma.user.update({
+      where: { id },
+      data: { refreshToken },
+    });
+  }
 
   // async update(
   //   id: string,

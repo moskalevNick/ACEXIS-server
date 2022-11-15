@@ -2,8 +2,6 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 
-import { CreateExisDto } from './dto/create-exis.dto';
-import { UpdateExisDto } from './dto/update-exis.dto';
 import { ClientService } from '../client/client.service';
 import { Client, Exis, Prisma } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
@@ -21,7 +19,7 @@ export class ExisService {
   }
 
   async create(
-    exisDto: Omit<Prisma.ExisCreateInput, 'client'>,
+    exisDto: Pick<Prisma.ExisCreateInput, 'text' | 'date'>,
     clientId: Client['id'],
   ) {
     const data: Prisma.ExisUncheckedCreateInput = {
@@ -34,34 +32,19 @@ export class ExisService {
     return createdExis;
   }
 
-  // async create(exisDto: CreateExisDto): Promise<Exis> {
-  //   const client = await this.clientService.getbyId(exisDto.clientId);
+  async delete(id: Exis['id']): Promise<Exis> {
+    return this.prisma.exis.delete({
+      where: { id },
+    });
+  }
 
-  //   await this.clientService.update(client.id, {
-  //     ...client,
-  //     exisIds: [...client.exisIds, exisDto.id],
-  //   });
-
-  //   const newExis = new this.exisModel(exisDto);
-
-  //   return newExis.save();
-  // }
-
-  // async remove(id: string): Promise<Exis> {
-  //   const exis = await this.getbyId(id);
-
-  //   const client = await this.clientService.getbyId(exis.clientId);
-  //   await this.clientService.update(client.id, {
-  //     ...client,
-  //     exisIds: client.exisIds.filter((id) => id !== exis.id),
-  //   });
-
-  //   return this.exisModel.findOneAndDelete({ id });
-  // }
-
-  // async update(id: string, exisDto: UpdateExisDto): Promise<Exis> {
-  //   return this.exisModel.findOneAndUpdate({ id }, exisDto, {
-  //     new: true,
-  //   });
-  // }
+  async update(
+    id: Exis['id'],
+    updateExisDto: Pick<Prisma.ExisUpdateInput, 'text'>,
+  ): Promise<Exis> {
+    return this.prisma.exis.update({
+      where: { id },
+      data: updateExisDto,
+    });
+  }
 }

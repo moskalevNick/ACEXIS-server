@@ -21,7 +21,6 @@
     "test:e2e": "jest --config ./test/jest-e2e.json",
     "db:migrate": "prisma migrate dev --name init",
     "db:seed": "prisma db seed"
-
   },
   "dependencies": {
     "@google-cloud/storage": "^6.6.0",

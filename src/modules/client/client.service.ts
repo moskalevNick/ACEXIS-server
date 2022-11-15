@@ -3,8 +3,6 @@ import { Prisma, Client, User } from '@prisma/client';
 
 import { PrismaService } from '../prisma/prisma.service';
 import { ImageService } from '../image/image.service';
-// import { UsersService } from '../users/users.service';
-// import { AccessTokenGuard } from 'src/commons/guards/accessToken.guard';
 import { FirebaseStorageProvider } from 'src/providers/firebase-storage.provider';
 
 @Injectable()
@@ -20,14 +18,6 @@ export class ClientService {
       where: {
         userId,
       },
-    });
-
-    return clients;
-  }
-
-  async getbyId(id: Client['id']): Promise<any> {
-    const client = await this.prisma.client.findUnique({
-      where: { id },
       select: {
         id: true,
         name: true,
@@ -36,19 +26,30 @@ export class ClientService {
         bills: true,
         userId: true,
         images: true,
-        exises: true,
       },
+    });
+
+    return clients;
+  }
+
+  async getbyId(id: Client['id']): Promise<any> {
+    const client = await this.prisma.client.findUnique({
+      where: { id },
     });
 
     return client;
   }
 
-  async create(): Promise<Client> {
+  async create(
+    createClientDto: Omit<
+      Prisma.ClientCreateInput,
+      'id' | 'exis' | 'images' | 'visits' | 'user'
+    >,
+    userId: User['id'],
+  ): Promise<Client> {
     const data: Prisma.ClientUncheckedCreateInput = {
-      name: 'Vladislav',
-      status: 'wheel',
-      phone: '+375447772233',
-      userId: '63726dd27dbbc6757e1e6c2b',
+      ...createClientDto,
+      userId,
     };
 
     const newClient = await this.prisma.client.create({ data });
@@ -56,13 +57,25 @@ export class ClientService {
     return newClient;
   }
 
-  // async remove(id: string): Promise<Client> {
-  //   return this.clientModel.findOneAndDelete({ id });
-  // }
+  async remove(id: Client['id']): Promise<Client> {
+    return this.prisma.client.delete({
+      where: { id },
+    });
+  }
 
-  // async update(id: string, clientDto: UpdateClientDto): Promise<Client> {
-  //   return this.clientModel.findOneAndUpdate({ id }, clientDto, { new: true });
-  // }
+  async update(
+    id: Client['id'],
+    clientDto: Prisma.ClientUpdateInput,
+  ): Promise<Client> {
+    return this.prisma.client.update({
+      where: {
+        id,
+      },
+      data: {
+        ...clientDto,
+      },
+    });
+  }
 
   async uploadImage(id: string, file: Express.Multer.File): Promise<string> {
     const client = await this.getbyId(id);
@@ -82,13 +95,9 @@ export class ClientService {
     return `client ${client.name} was successfully updated`;
   }
 
-  // async deleteImage(id: string) {
-  // const images = await this.imageService.getbyId(id);
-  // const client = await this.getbyId(images.clientId);
-  // await this.update(client.id, {
-  //   ...client,
-  //   imgIds: client.imgIds.filter((el) => id !== el),
-  // });
-  // return await this.storageProvider.delete(images);
-  // }
+  async deleteImage(id: string) {
+    await this.imageService.delete(id);
+
+    return 'image was successfully deleted';
+  }
 }

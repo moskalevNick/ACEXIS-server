@@ -1,5 +1,5 @@
 import { FileInterceptor } from '@nestjs/platform-express';
-import { Client } from '@prisma/client';
+import { Client, Prisma } from '@prisma/client';
 import {
   Body,
   Controller,
@@ -16,8 +16,6 @@ import {
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
-import { CreateClientDto } from 'src/modules/client/dto/create-client.dto';
-import { UpdateClientDto } from 'src/modules/client/dto/update-client.dto';
 import { ClientService } from './client.service';
 import { AccessTokenGuard } from 'src/commons/guards/accessToken.guard';
 
@@ -25,10 +23,10 @@ import { AccessTokenGuard } from 'src/commons/guards/accessToken.guard';
 export class ClientController {
   constructor(private readonly clientService: ClientService) {}
 
-  // @UseGuards(AccessTokenGuard)
+  @UseGuards(AccessTokenGuard)
   @Get()
-  getAll(@Req() req): Promise<Client[]> {
-    return this.clientService.getClientsByUserId('63726dd27dbbc6757e1e6c2b');
+  getAll(@Req() req: any): Promise<Client[]> {
+    return this.clientService.getClientsByUserId(req.user.userId);
   }
 
   @Get(':id')
@@ -36,21 +34,32 @@ export class ClientController {
     return this.clientService.getbyId(id);
   }
 
-  // @UseGuards(AccessTokenGuard)
+  @UseGuards(AccessTokenGuard)
   @Post()
   @HttpCode(HttpStatus.CREATED)
   @Header('Cache-Control', 'none')
-  create(@Body() createClientDto, @Req() req) {
-    return this.clientService.create();
+  create(
+    @Body()
+    createClientDto: Omit<
+      Prisma.ClientCreateInput,
+      'user' | 'exis' | 'images' | 'visits'
+    >,
+    @Req() req: any,
+  ) {
+    return this.clientService.create(createClientDto, req.user.userId);
   }
 
-  // @Put(':id')
-  // update(
-  //   @Body() updateClientDto: UpdateClientDto,
-  //   @Param('id') id: string,
-  // ): Promise<Client> {
-  //   return this.clientService.update(id, updateClientDto);
-  // }
+  @Put(':id')
+  update(
+    @Body()
+    updateClientDto: Omit<
+      Prisma.ClientUpdateInput,
+      'user' | 'exis' | 'images' | 'visits'
+    >,
+    @Param('id') id: string,
+  ): Promise<Client> {
+    return this.clientService.update(id, updateClientDto);
+  }
 
   @Post('image/:id')
   @UseInterceptors(FileInterceptor('file'))
@@ -61,14 +70,14 @@ export class ClientController {
     return this.clientService.uploadImage(id, file);
   }
 
-  // @Delete('image/:id')
-  // public async deleteImage(@Param('id') id: string): Promise<string> {
-  //   // return this.clientService.deleteImage(id);
-  //   return;
-  // }
+  @Delete('image/:id')
+  public async deleteImage(@Param('id') id: string): Promise<string> {
+    return this.clientService.deleteImage(id);
+    return;
+  }
 
-  // @Delete('/:id')
-  // remove(@Param('id') id: string): Promise<Client> {
-  //   return this.clientService.remove(id);
-  // }
+  @Delete('/:id')
+  remove(@Param('id') id: string): Promise<Client> {
+    return this.clientService.remove(id);
+  }
 }
