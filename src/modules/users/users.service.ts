@@ -6,7 +6,9 @@ import { PrismaService } from '../prisma/prisma.service';
 export class UsersService {
   constructor(private prisma: PrismaService) {}
 
-  async create(createUserDto: Prisma.UserCreateInput): Promise<User> {
+  async create(
+    createUserDto: Pick<Prisma.UserCreateInput, 'username' | 'password'>,
+  ): Promise<User> {
     const createdUser = await this.prisma.user.create({
       data: createUserDto,
     });
@@ -32,7 +34,7 @@ export class UsersService {
     });
   }
 
-  async findByUsername(username: User['username']): Promise<any> {
+  async findByUsername(username: User['username']): Promise<User> {
     return this.prisma.user.findFirst({
       where: { username },
     });

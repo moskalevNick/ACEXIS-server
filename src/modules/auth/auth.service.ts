@@ -1,101 +1,60 @@
-import {
-  BadRequestException,
-  ForbiddenException,
-  Injectable,
-} from '@nestjs/common';
-import * as argon2 from 'argon2';
-import { JwtService } from '@nestjs/jwt';
-import { ConfigService } from '@nestjs/config';
-import { UsersService } from '../users/users.service';
 import { User } from '@prisma/client';
+import { Injectable } from '@nestjs/common';
+import { JwtService } from '@nestjs/jwt';
+import { hash, verify } from 'argon2';
+
+import { PrismaService } from '../prisma/prisma.service';
+import { UsersService } from '../users/users.service';
 
 @Injectable()
 export class AuthService {
   constructor(
-    private usersService: UsersService,
+    private userService: UsersService,
     private jwtService: JwtService,
-    private configService: ConfigService,
+    private prisma: PrismaService,
   ) {}
 
-  async signUp(
-    createUserDto: Pick<User, 'username' | 'password'>,
-  ): Promise<any> {
-    // Check if user exists
-    const userExists = await this.usersService.findByUsername(
-      createUserDto.username,
-    );
-    if (userExists) {
-      throw new BadRequestException('User already exists');
+  async registration({
+    username,
+    password,
+  }: Pick<User, 'username' | 'password'>): Promise<User> {
+    const candidate = await this.userService.findByUsername(username);
+
+    if (candidate) {
+      throw new Error('User with this username already exist');
     }
 
-    // Hash password
-    const hash = await this.hashData(createUserDto.password);
-    const newUser = await this.usersService.create({
-      ...createUserDto,
-      password: hash,
+    const hashedPassword = await hash(password);
+    const createdUser = await this.userService.create({
+      username,
+      password: hashedPassword,
     });
-    const tokens = await this.getTokens(newUser.id, newUser.username);
-    await this.updateRefreshToken(newUser.id, tokens.refreshToken);
-    return tokens;
+
+    return createdUser;
   }
 
-  async signIn(data: Pick<User, 'username' | 'password'>) {
-    // Check if user exists
-    const user = await this.usersService.findByUsername(data.username);
-    if (!user) {
-      throw new BadRequestException('User does not exist');
+  async login({
+    username,
+    password,
+  }: Pick<User, 'username' | 'password'>): Promise<{
+    accessToken: string;
+    refreshToken: User['refreshToken'];
+  }> {
+    const candidate = await this.userService.findByUsername(username);
+
+    if (!candidate) {
+      throw new Error('User with this username not found');
     }
 
-    const passwordMatches = await argon2.verify(user.password, data.password);
-    if (!passwordMatches) {
-      throw new BadRequestException('Password is incorrect');
+    const isPasswordsEqual = await verify(candidate.password, password);
+
+    if (!isPasswordsEqual) {
+      throw new Error('Password wrong!');
     }
 
-    const tokens = await this.getTokens(user._id, user.username);
-    await this.updateRefreshToken(user._id, tokens.refreshToken);
-
-    return tokens;
-  }
-
-  async logout(userId: User['id']) {
-    return this.usersService.updateRefreshToken(userId, null);
-  }
-
-  hashData(data: string) {
-    return argon2.hash(data);
-  }
-
-  async updateRefreshToken(
-    userId: User['id'],
-    refreshToken: User['refreshToken'],
-  ) {
-    const hashedRefreshToken = await this.hashData(refreshToken);
-    await this.usersService.updateRefreshToken(userId, hashedRefreshToken);
-  }
-
-  async getTokens(userId: string, username: string) {
-    const [accessToken, refreshToken] = await Promise.all([
-      this.jwtService.signAsync(
-        {
-          userId: userId,
-          username,
-        },
-        {
-          secret: this.configService.get<string>('JWT_ACCESS_SECRET'),
-          expiresIn: '150m', //change time
-        },
-      ),
-      this.jwtService.signAsync(
-        {
-          userId: userId,
-          username,
-        },
-        {
-          secret: this.configService.get<string>('JWT_REFRESH_SECRET'),
-          expiresIn: '7d',
-        },
-      ),
-    ]);
+    const accessToken = this.generateToken(candidate, true);
+    const refreshToken = this.generateToken(candidate, false);
+    await this.setNewToken(candidate.id, refreshToken);
 
     return {
       accessToken,
@@ -103,22 +62,38 @@ export class AuthService {
     };
   }
 
-  async refreshTokens(userId: string, refreshToken: string) {
-    const user = await this.usersService.findById(userId);
-    if (!user || !user.refreshToken) {
-      throw new ForbiddenException('Access Denied');
-    }
+  async setNewToken(
+    id: User['id'],
+    refreshToken: User['refreshToken'],
+  ): Promise<User> {
+    return this.prisma.user.update({
+      where: { id },
+      data: { refreshToken },
+    });
+  }
 
-    const refreshTokenMatches = await argon2.verify(
-      user.refreshToken,
-      refreshToken,
-    );
-    if (!refreshTokenMatches) {
-      throw new ForbiddenException('Access Denied');
-    }
+  async refresh(user: User) {
+    const accessToken = this.generateToken(user, true);
 
-    const tokens = await this.getTokens(user.id, user.username);
-    await this.updateRefreshToken(user.id, tokens.refreshToken);
-    return tokens;
+    return {
+      accessToken,
+    };
+  }
+
+  async logout(token: string) {
+    // return this.db.token.deleteMany({ where: { refreshToken: token } });
+  }
+
+  generateToken(data: User, isAccessToken: boolean): string {
+    const payload = {
+      access: isAccessToken,
+      username: data.username,
+      id: data.id,
+    };
+
+    return this.jwtService.sign(payload, {
+      algorithm: 'HS512',
+      expiresIn: isAccessToken ? '15m' : '30d',
+    });
   }
 }

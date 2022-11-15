@@ -17,16 +17,16 @@ import {
   UseInterceptors,
 } from '@nestjs/common';
 import { ClientService } from './client.service';
-import { AccessTokenGuard } from 'src/commons/guards/accessToken.guard';
+import { JwtAuthGuard } from 'src/commons/guards/accessToken.guard';
 
 @Controller('clients')
 export class ClientController {
   constructor(private readonly clientService: ClientService) {}
 
-  @UseGuards(AccessTokenGuard)
+  @UseGuards(JwtAuthGuard)
   @Get()
   getAll(@Req() req: any): Promise<Client[]> {
-    return this.clientService.getClientsByUserId(req.user.userId);
+    return this.clientService.getClientsByUserId(req.user.id);
   }
 
   @Get(':id')
@@ -34,7 +34,7 @@ export class ClientController {
     return this.clientService.getbyId(id);
   }
 
-  @UseGuards(AccessTokenGuard)
+  @UseGuards(JwtAuthGuard)
   @Post()
   @HttpCode(HttpStatus.CREATED)
   @Header('Cache-Control', 'none')

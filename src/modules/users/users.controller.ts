@@ -11,7 +11,7 @@ import {
 import { UsersService } from './users.service';
 import { User } from '@prisma/client';
 
-import { AccessTokenGuard } from 'src/commons/guards/accessToken.guard';
+// import { AccessTokenGuard } from 'src/commons/guards/accessToken.guard';
 
 @Controller('users')
 export class UsersController {

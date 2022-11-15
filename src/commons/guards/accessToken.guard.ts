@@ -4,39 +4,50 @@ import {
   Injectable,
   UnauthorizedException,
 } from '@nestjs/common';
+import { User } from '@prisma/client';
 import { JwtService } from '@nestjs/jwt';
-import { Observable } from 'rxjs';
+
+import { UsersService } from '../../modules/users/users.service';
 
 @Injectable()
-export class AccessTokenGuard implements CanActivate {
-  constructor(private jwtService: JwtService) {}
+export class JwtAuthGuard implements CanActivate {
+  constructor(
+    private jwtService: JwtService,
+    private userService: UsersService,
+  ) {}
 
-  canActivate(
-    context: ExecutionContext,
-  ): boolean | Promise<boolean> | Observable<boolean> {
+  async canActivate(context: ExecutionContext) {
     const req = context.switchToHttp().getRequest();
+    const authHeader = req.headers.authorization;
+
+    if (!authHeader) {
+      throw new UnauthorizedException('Invalid auth header!');
+    }
+
+    const [bearer, token] = authHeader.split(' ');
+
+    if (bearer !== 'Bearer' || !token) {
+      throw new UnauthorizedException('Invalid access token!');
+    }
+
     try {
-      const authHeader = req.headers.authorization;
+      const data: { id: User['id']; access: boolean } =
+        this.jwtService.verify(token);
 
-      if (!authHeader) {
-        throw new UnauthorizedException('user unauthorized');
-      }
-      const bearer = authHeader.split(' ')[0];
-      const token = authHeader.split(' ')[1];
-
-      if (bearer !== 'Bearer' || !token) {
-        throw new UnauthorizedException('user unauthorized');
+      if (!data || !data.access) {
+        throw new Error('Invalid token');
       }
 
-      const user = this.jwtService.verify(token, {
-        secret: process.env.JWT_ACCESS_SECRET,
-      });
+      const user = await this.userService.findById(data.id);
+
+      if (!user) {
+        throw new Error('Invalid token');
+      }
 
       req.user = user;
       return true;
-    } catch (e) {
-      console.log(e);
-      throw new UnauthorizedException('user unauthorized');
+    } catch (error) {
+      throw new UnauthorizedException('Something went wrong!');
     }
   }
 }
