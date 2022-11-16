@@ -1,51 +1,47 @@
 import { Injectable } from '@nestjs/common';
-import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
-import { ExisDocument } from './exis.schema';
-import { Exis } from 'src/modules/exis/exis.schema';
-import { CreateExisDto } from './dto/create-exis.dto';
-import { UpdateExisDto } from './dto/update-exis.dto';
-import { ClientService } from '../client/client.service';
+import { Client, Exis, Prisma } from '@prisma/client';
+
+import { PrismaService } from '../prisma/prisma.service';
 
 @Injectable()
 export class ExisService {
-  constructor(
-    @InjectModel(Exis.name) private exisModel: Model<ExisDocument>,
-    private clientService: ClientService,
-  ) {}
+  constructor(private prisma: PrismaService) {}
 
-  async getbyId(id: string): Promise<Exis> {
-    return this.exisModel.findOne({ id });
-  }
-
-  async create(exisDto: CreateExisDto): Promise<Exis> {
-    const client = await this.clientService.getbyId(exisDto.clientId);
-
-    await this.clientService.update(client.id, {
-      ...client,
-      exisIds: [...client.exisIds, exisDto.id],
+  async getExisesByClientId(clientId: Client['id']): Promise<Exis[]> {
+    const exises = await this.prisma.exis.findMany({
+      where: { clientId },
     });
 
-    const newExis = new this.exisModel(exisDto);
-
-    return newExis.save();
+    return exises;
   }
 
-  async remove(id: string): Promise<Exis> {
-    const exis = await this.getbyId(id);
+  async create(
+    exisDto: Pick<Prisma.ExisCreateInput, 'text' | 'date'>,
+    clientId: Client['id'],
+  ) {
+    const data: Prisma.ExisUncheckedCreateInput = {
+      ...exisDto,
+      clientId,
+    };
 
-    const client = await this.clientService.getbyId(exis.clientId);
-    await this.clientService.update(client.id, {
-      ...client,
-      exisIds: client.exisIds.filter((id) => id !== exis.id),
+    const createdExis = await this.prisma.exis.create({ data });
+
+    return createdExis;
+  }
+
+  async delete(id: Exis['id']): Promise<Exis> {
+    return this.prisma.exis.delete({
+      where: { id },
     });
-
-    return this.exisModel.findOneAndDelete({ id });
   }
 
-  async update(id: string, exisDto: UpdateExisDto): Promise<Exis> {
-    return this.exisModel.findOneAndUpdate({ id }, exisDto, {
-      new: true,
+  async update(
+    id: Exis['id'],
+    updateExisDto: Pick<Prisma.ExisUpdateInput, 'text'>,
+  ): Promise<Exis> {
+    return this.prisma.exis.update({
+      where: { id },
+      data: updateExisDto,
     });
   }
 }

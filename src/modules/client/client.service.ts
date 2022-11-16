@@ -1,104 +1,112 @@
 import { Injectable } from '@nestjs/common';
-import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
-import { ClientDocument } from './client.schema';
-import { Client } from 'src/modules/client/client.schema';
-import { CreateClientDto } from 'src/modules/client/dto/create-client.dto';
-import { UpdateClientDto } from 'src/modules/client/dto/update-client.dto';
+import { Prisma, Client, User } from '@prisma/client';
+
+import { PrismaService } from '../prisma/prisma.service';
+import { ImageService } from '../image/image.service';
 import { FirebaseStorageProvider } from 'src/providers/firebase-storage.provider';
-import { AvatarService } from 'src/modules/avatar/avatar.service';
 
 @Injectable()
 export class ClientService {
   constructor(
-    @InjectModel(Client.name) private clientModel: Model<ClientDocument>,
     private storageProvider: FirebaseStorageProvider,
-    private avatarService: AvatarService,
+    private imageService: ImageService,
+    private prisma: PrismaService,
   ) {}
 
-  async getAll(): Promise<Client[]> {
-    return this.clientModel.aggregate([
-      {
-        $lookup: {
-          from: 'avatars',
-          localField: 'imgIds',
-          foreignField: 'id',
-          as: 'avatars',
-        },
+  async getClientsByUserId(userId: User['id']): Promise<Client[]> {
+    const clients = await this.prisma.client.findMany({
+      where: {
+        userId,
       },
-      {
-        $replaceRoot: {
-          newRoot: {
-            $mergeObjects: [
-              '$$ROOT',
-              {
-                avatarLink: {
-                  $arrayElemAt: ['$avatars.publicUrl', -1],
-                },
-              },
-            ],
-          },
-        },
+      select: {
+        id: true,
+        name: true,
+        status: true,
+        phone: true,
+        bills: true,
+        userId: true,
+        images: true,
       },
-      {
-        $lookup: {
-          from: 'exis',
-          localField: 'exisIds',
-          foreignField: 'id',
-          as: 'exises',
-        },
+    });
+
+    return clients;
+  }
+
+  async getbyId(id: Client['id']): Promise<any> {
+    const client = await this.prisma.client.findUnique({
+      where: { id },
+      select: {
+        id: true,
+        name: true,
+        status: true,
+        phone: true,
+        bills: true,
+        userId: true,
+        images: true,
+        visits: true,
       },
-      {
-        $unset: ['avatars', 'exisIds'],
+    });
+    return client;
+  }
+
+  async create(
+    createClientDto: Omit<
+      Prisma.ClientCreateInput,
+      'id' | 'exis' | 'images' | 'visits' | 'user'
+    >,
+    userId: User['id'],
+  ): Promise<Client> {
+    const data: Prisma.ClientUncheckedCreateInput = {
+      ...createClientDto,
+      userId,
+    };
+
+    const newClient = await this.prisma.client.create({ data });
+
+    return newClient;
+  }
+
+  async remove(id: Client['id']): Promise<Client> {
+    return this.prisma.client.delete({
+      where: { id },
+    });
+  }
+
+  async update(
+    id: Client['id'],
+    clientDto: Prisma.ClientUpdateInput,
+  ): Promise<Client> {
+    return this.prisma.client.update({
+      where: {
+        id,
       },
-    ]);
+      data: {
+        ...clientDto,
+      },
+    });
   }
 
-  async getbyId(id: string): Promise<any> {
-    return this.clientModel.findOne({ id }).lean();
-  }
-
-  async create(clientDto: CreateClientDto): Promise<Client> {
-    const newClient = new this.clientModel(clientDto);
-    return newClient.save();
-  }
-
-  async remove(id: string): Promise<Client> {
-    return this.clientModel.findOneAndDelete({ id });
-  }
-
-  async update(id: string, clientDto: UpdateClientDto): Promise<Client> {
-    return this.clientModel.findOneAndUpdate({ id }, clientDto, { new: true });
-  }
-
-  async uploadAvatar(id: string, file: Express.Multer.File): Promise<string> {
+  async uploadImage(id: string, file: Express.Multer.File): Promise<string> {
     const client = await this.getbyId(id);
 
-    const avatarId = await this.storageProvider.upload(
+    const { fullName, name } = await this.storageProvider.upload(
       file,
-      'client-avatars',
-      id,
+      'client-images',
+      client.id,
     );
 
-    if (client) {
-      try {
-        this.update(id, { ...client, imgIds: [...client.imgIds, avatarId] });
-      } catch (e) {
-        console.log('something went wrong: ', e);
-        return "can't add photo to client";
-      }
-    } else return 'client not found';
+    this.imageService.create({
+      path: fullName,
+      clientId: client.id,
+      publicUrl: `https://firebasestorage.googleapis.com/v0/b/acexis-c375d.appspot.com/o/client-images%2F${name}?alt=media`,
+    });
 
     return `client ${client.name} was successfully updated`;
   }
 
-  async deleteAvatar(id: string) {
-    const avatar = await this.avatarService.getbyId(id);
-    const client = await this.getbyId(avatar.clientId);
-    await this.update(client.id, {
-      ...client,
-      imgIds: client.imgIds.filter((el) => id !== el),
-    });
-    return await this.storageProvider.delete(avatar);
+  async deleteImage(id: string) {
+    await this.imageService.delete(id);
+
+    return 'image was successfully deleted';
   }
 }

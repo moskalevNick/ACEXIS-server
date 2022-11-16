@@ -1,41 +1,62 @@
 import { Injectable } from '@nestjs/common';
-import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
-import { CreateUserDto } from './dto/create-user.dto';
-import { UpdateUserDto } from './dto/update-user.dto';
-import { User, UserDocument } from './user.schema';
+import { Prisma, User } from '@prisma/client';
+import { PrismaService } from '../prisma/prisma.service';
 
 @Injectable()
 export class UsersService {
-  constructor(@InjectModel(User.name) private userModel: Model<UserDocument>) {}
+  constructor(private prisma: PrismaService) {}
 
-  async create(createUserDto: CreateUserDto): Promise<UserDocument> {
-    const createdUser = new this.userModel(createUserDto);
-    return createdUser.save();
+  async create(
+    createUserDto: Pick<Prisma.UserCreateInput, 'username' | 'password'>,
+  ): Promise<User> {
+    const createdUser = await this.prisma.user.create({
+      data: createUserDto,
+    });
+
+    return createdUser;
   }
 
-  async findAll(): Promise<UserDocument[]> {
-    return this.userModel.find().exec();
+  async findAll(): Promise<any> {
+    return await this.prisma.user.findMany({
+      select: {
+        id: true,
+        username: true,
+        password: true,
+        refreshToken: true,
+        clients: true,
+      },
+    });
   }
 
-  async findById(id: string): Promise<UserDocument> {
-    return this.userModel.findById(id);
+  async findById(id: User['id']): Promise<User> {
+    return this.prisma.user.findUnique({
+      where: { id },
+    });
   }
 
-  async findByUsername(username: string): Promise<UserDocument> {
-    return this.userModel.findOne({ username }).exec();
+  async findByUsername(username: User['username']): Promise<User> {
+    return this.prisma.user.findFirst({
+      where: { username },
+    });
   }
 
-  async update(
-    id: string,
-    updateUserDto: UpdateUserDto,
-  ): Promise<UserDocument> {
-    return this.userModel
-      .findByIdAndUpdate(id, updateUserDto, { new: true })
-      .exec();
+  async updateRefreshToken(id: User['id'], refreshToken: User['refreshToken']) {
+    this.prisma.user.update({
+      where: { id },
+      data: { refreshToken },
+    });
   }
 
-  async remove(id: string): Promise<UserDocument> {
-    return this.userModel.findByIdAndDelete(id).exec();
-  }
+  // async update(
+  //   id: string,
+  //   updateUserDto: UpdateUserDto,
+  // ): Promise<UserDocument> {
+  //   return this.userModel
+  //     .findByIdAndUpdate(id, updateUserDto, { new: true })
+  //     .exec();
+  // }
+
+  // async remove(id: string): Promise<UserDocument> {
+  //   return this.userModel.findByIdAndDelete(id).exec();
+  // }
 }

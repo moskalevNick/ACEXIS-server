@@ -1,19 +1,20 @@
 import { v4 as uuidv4 } from 'uuid';
 import { Injectable } from '@nestjs/common';
+import { Image } from '@prisma/client';
 import { getStorage, ref, uploadBytes, deleteObject } from 'firebase/storage';
-import { Avatar } from 'src/modules/avatar/avatar.schema';
-import { AvatarService } from 'src/modules/avatar/avatar.service';
-const path = require('path');
+import { ImageService } from 'src/modules/image/image.service';
+
+import path from 'path';
 
 @Injectable()
 export class FirebaseStorageProvider {
-  constructor(private avatarService: AvatarService) {}
+  constructor() {}
 
   public async upload(
     file: Express.Multer.File,
     folder: string,
     clientId: string,
-  ): Promise<string> {
+  ): Promise<{ fullName: string; name: string }> {
     const storage = getStorage();
 
     const fileName = `${path.parse(file.originalname).name}__${uuidv4()}`;
@@ -26,27 +27,18 @@ export class FirebaseStorageProvider {
       contentType: 'image/jpeg',
     });
 
-    const avatarId = uuidv4();
-
-    this.avatarService.create({
-      id: avatarId,
-      path: fullName,
-      clientId: clientId,
-      publicUrl: `https://firebasestorage.googleapis.com/v0/b/acexis-c375d.appspot.com/o/client-avatars%2F${uploaded.metadata.name}?alt=media`,
-    });
-
-    return avatarId;
+    return { fullName, name: uploaded.metadata.name };
   }
 
-  public async delete(avatar: Avatar): Promise<string> {
+  public async delete(path: Image['path']): Promise<string> {
     const storage = getStorage();
-    const fileRef = ref(storage, avatar.path);
+    const fileRef = ref(storage, path);
     try {
       await deleteObject(fileRef);
     } catch (e) {
-      return `can't remove this avatar`;
+      return `can't remove this image`;
     }
 
-    return `avatar successfully deleted`;
+    return `image successfully deleted`;
   }
 }

@@ -1,4 +1,5 @@
 import { FileInterceptor } from '@nestjs/platform-express';
+import { Client, Prisma } from '@prisma/client';
 import {
   Body,
   Controller,
@@ -10,23 +11,22 @@ import {
   Param,
   Post,
   Put,
+  Req,
   UploadedFile,
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
-import { CreateClientDto } from 'src/modules/client/dto/create-client.dto';
-import { UpdateClientDto } from 'src/modules/client/dto/update-client.dto';
-import { Client } from 'src/modules/client/client.schema';
 import { ClientService } from './client.service';
+import { JwtAuthGuard } from 'src/commons/guards/accessToken.guard';
 
-@Controller('client')
+@Controller('clients')
 export class ClientController {
   constructor(private readonly clientService: ClientService) {}
 
-  // @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard)
   @Get()
-  getAll(): Promise<Client[]> {
-    return this.clientService.getAll();
+  getAll(@Req() req: any): Promise<Client[]> {
+    return this.clientService.getClientsByUserId(req.user.id);
   }
 
   @Get(':id')
@@ -34,36 +34,52 @@ export class ClientController {
     return this.clientService.getbyId(id);
   }
 
+  @UseGuards(JwtAuthGuard)
   @Post()
   @HttpCode(HttpStatus.CREATED)
   @Header('Cache-Control', 'none')
-  create(@Body() createClientDto: CreateClientDto) {
-    return this.clientService.create(createClientDto);
+  create(
+    @Body()
+    createClientDto: Omit<
+      Prisma.ClientCreateInput,
+      'user' | 'exis' | 'images' | 'visits'
+    >,
+    @Req() req: any,
+  ) {
+    return this.clientService.create(createClientDto, req.user.userId);
   }
 
+  @UseGuards(JwtAuthGuard)
   @Put(':id')
   update(
-    @Body() updateClientDto: UpdateClientDto,
+    @Body()
+    updateClientDto: Omit<
+      Prisma.ClientUpdateInput,
+      'user' | 'exis' | 'images' | 'visits'
+    >,
     @Param('id') id: string,
   ): Promise<Client> {
     return this.clientService.update(id, updateClientDto);
   }
 
-  @Post('avatar/:id')
+  @UseGuards(JwtAuthGuard)
+  @Post('image/:id')
   @UseInterceptors(FileInterceptor('file'))
-  public async uploadAvatar(
+  public async uploadImage(
     @Param('id') id: string,
     @UploadedFile() file: Express.Multer.File,
   ): Promise<string> {
-    return this.clientService.uploadAvatar(id, file);
+    return this.clientService.uploadImage(id, file);
   }
 
-  @Delete('avatar/:id')
-  public async deleteAvatar(@Param('id') id: string): Promise<string> {
-    // return this.clientService.deleteAvatar(id);
+  @UseGuards(JwtAuthGuard)
+  @Delete('image/:id')
+  public async deleteImage(@Param('id') id: string): Promise<string> {
+    return this.clientService.deleteImage(id);
     return;
   }
 
+  @UseGuards(JwtAuthGuard)
   @Delete('/:id')
   remove(@Param('id') id: string): Promise<Client> {
     return this.clientService.remove(id);

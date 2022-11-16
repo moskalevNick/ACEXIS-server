@@ -1,5 +1,4 @@
-export class CreateAvatarDto {
-  readonly id: string;
+export class CreateImageDto {
   readonly path: string;
   readonly publicUrl: string;
   readonly clientId: string;

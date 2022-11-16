@@ -1,0 +1,69 @@
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id           String   @id @default(auto()) @map("_id") @db.ObjectId
+  username     String   @db.String
+  password     String   @db.String
+  refreshToken String?  @db.String
+  clients      Client[]
+
+  @@map("users")
+}
+
+model Client {
+  id     String  @id @default(auto()) @map("_id") @db.ObjectId
+  name   String  @db.String
+  status String  @db.String
+  phone  String  @db.String
+  bills  Float[] @db.Double
+  images Image[]
+  exises Exis[]
+  visits Visit[]
+
+  user   User   @relation(fields: [userId], references: [id])
+  userId String @db.ObjectId
+
+  @@map("clients")
+}
+
+model Image {
+  id        String @id @default(auto()) @map("_id") @db.ObjectId
+  path      String @db.String
+  publicUrl String @db.String
+
+  client   Client @relation(fields: [clientId], references: [id])
+  clientId String @db.ObjectId
+
+  @@map("images")
+}
+
+model Visit {
+  id   String   @id @default(auto()) @map("_id") @db.ObjectId
+  date DateTime @db.Date
+
+  exis     Exis?   @relation(fields: [exisId], references: [id])
+  exisId   String? @db.ObjectId
+  client   Client  @relation(fields: [clientId], references: [id])
+  clientId String  @db.ObjectId
+
+  @@map("visits")
+}
+
+model Exis {
+  id    String   @id @default(auto()) @map("_id") @db.ObjectId
+  date  DateTime @db.Date
+  text  String   @db.String
+  visit Visit[]
+
+  client   Client @relation(fields: [clientId], references: [id])
+  clientId String @db.ObjectId
+
+  @@map("exises")
+}

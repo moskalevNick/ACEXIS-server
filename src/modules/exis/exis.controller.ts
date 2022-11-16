@@ -10,37 +10,43 @@ import {
   Post,
   Put,
 } from '@nestjs/common';
-import { UpdateExisDto } from './dto/update-exis.dto';
-import { CreateExisDto } from 'src/modules/exis/dto/create-exis.dto';
-import { Exis } from 'src/modules/exis/exis.schema';
+import { Client, Prisma, Exis } from '@prisma/client';
 import { ExisService } from './exis.service';
 
-@Controller('exis')
+@Controller('exises')
 export class ExisController {
   constructor(private readonly exisService: ExisService) {}
 
-  @Post()
-  @HttpCode(HttpStatus.CREATED)
-  @Header('Cache-Control', 'none')
-  create(@Body() createExisDto: CreateExisDto) {
-    return this.exisService.create(createExisDto);
+  @Get('/:clientId')
+  getExisesByClientId(@Param('clientId') clientId: Client['id']) {
+    return this.exisService.getExisesByClientId(clientId);
   }
 
-  @Get('/:id')
-  getOne(@Param('id') id: string): Promise<Exis> {
-    return this.exisService.getbyId(id);
+  @Post('/:clientId')
+  @HttpCode(HttpStatus.CREATED)
+  @Header('Cache-Control', 'none')
+  create(
+    @Body()
+    createExisDto: Pick<Prisma.ExisCreateInput, 'text'>,
+    @Param('clientId') clientId: Client['id'],
+  ) {
+    const newExis = {
+      ...createExisDto,
+      date: new Date(),
+    };
+    return this.exisService.create(newExis, clientId);
   }
 
   @Put('/:id')
   update(
-    @Body() updateExisDto: UpdateExisDto,
-    @Param('id') id: string,
+    @Body() updateExisDto: Pick<Prisma.ExisUpdateInput, 'text'>,
+    @Param('id') id: Exis['id'],
   ): Promise<Exis> {
     return this.exisService.update(id, updateExisDto);
   }
 
   @Delete('/:id')
-  remove(@Param('id') id: string): Promise<Exis> {
-    return this.exisService.remove(id);
+  delete(@Param('id') id: Exis['id']): Promise<Exis> {
+    return this.exisService.delete(id);
   }
 }

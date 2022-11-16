@@ -1,36 +1,32 @@
-import { Body, Controller, Get, Post, Req, UseGuards } from '@nestjs/common';
-import { Request } from 'express';
-import { AccessTokenGuard } from 'src/commons/guards/accessToken.guard';
-import { RefreshTokenGuard } from 'src/commons/guards/refreshToken.guard';
-import { CreateUserDto } from '../users/dto/create-user.dto';
+import { Body, Controller, Param, Post, UseGuards, Req } from '@nestjs/common';
+import { User } from '@prisma/client';
+
+import { JwtRefreshGuard } from '../../commons/guards/refreshToken.guard';
 import { AuthService } from './auth.service';
-import { AuthDto } from './dto/auth.dto';
 
 @Controller('auth')
 export class AuthController {
   constructor(private authService: AuthService) {}
 
-  @Post('signup')
-  signup(@Body() createUserDto: CreateUserDto) {
-    return this.authService.signUp(createUserDto);
+  @Post('/registration')
+  registration(@Body() userDto: Pick<User, 'username' | 'password'>) {
+    return this.authService.registration(userDto);
   }
 
-  @Post('signin')
-  signin(@Body() data: AuthDto) {
-    return this.authService.signIn(data);
+  @Post('/login')
+  login(@Body() userDto: Pick<User, 'username' | 'password'>) {
+    return this.authService.login(userDto);
   }
 
-  @UseGuards(AccessTokenGuard)
-  @Get('logout')
-  logout(@Req() req: Request) {
-    this.authService.logout(req.user['sub']);
+  @Post('/refresh')
+  @UseGuards(JwtRefreshGuard)
+  refresh(@Req() { user }) {
+    return this.authService.refresh(user);
   }
 
-  @UseGuards(RefreshTokenGuard)
-  @Get('refresh')
-  refreshTokens(@Req() req: Request) {
-    const userId = req.user['sub'];
-    const refreshToken = req.user['refreshToken'];
-    return this.authService.refreshTokens(userId, refreshToken);
+  @Post('/logout')
+  @UseGuards(JwtRefreshGuard)
+  logout(@Req() { user }) {
+    return this.authService.logout(user);
   }
 }

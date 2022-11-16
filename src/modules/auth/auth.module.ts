@@ -4,17 +4,16 @@ import { JwtModule } from '@nestjs/jwt';
 import { UsersModule } from '../users/users.module';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
-import { AccessTokenStrategy } from './strategies/accessToken.strategy';
-import { RefreshTokenStrategy } from './strategies/refreshToken.strategy';
 
 @Module({
-  imports: [JwtModule.register({}), UsersModule],
-  controllers: [AuthController],
-  providers: [
-    AuthService,
-    AccessTokenStrategy,
-    RefreshTokenStrategy,
-    ConfigService,
+  imports: [
+    JwtModule.register({
+      secret: process.env.JWT_ACCESS_SECRET,
+    }),
+    UsersModule,
   ],
+  controllers: [AuthController],
+  providers: [AuthService, ConfigService],
+  exports: [AuthService, JwtModule],
 })
 export class AuthModule {}
