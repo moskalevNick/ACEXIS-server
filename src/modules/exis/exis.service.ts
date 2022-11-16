@@ -1,9 +1,6 @@
 import { Injectable } from '@nestjs/common';
-import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
-
-import { ClientService } from '../client/client.service';
 import { Client, Exis, Prisma } from '@prisma/client';
+
 import { PrismaService } from '../prisma/prisma.service';
 
 @Injectable()

@@ -35,8 +35,17 @@ export class ClientService {
   async getbyId(id: Client['id']): Promise<any> {
     const client = await this.prisma.client.findUnique({
       where: { id },
+      select: {
+        id: true,
+        name: true,
+        status: true,
+        phone: true,
+        bills: true,
+        userId: true,
+        images: true,
+        visits: true,
+      },
     });
-
     return client;
   }
 

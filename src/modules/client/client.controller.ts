@@ -49,6 +49,7 @@ export class ClientController {
     return this.clientService.create(createClientDto, req.user.userId);
   }
 
+  @UseGuards(JwtAuthGuard)
   @Put(':id')
   update(
     @Body()
@@ -61,6 +62,7 @@ export class ClientController {
     return this.clientService.update(id, updateClientDto);
   }
 
+  @UseGuards(JwtAuthGuard)
   @Post('image/:id')
   @UseInterceptors(FileInterceptor('file'))
   public async uploadImage(
@@ -70,12 +72,14 @@ export class ClientController {
     return this.clientService.uploadImage(id, file);
   }
 
+  @UseGuards(JwtAuthGuard)
   @Delete('image/:id')
   public async deleteImage(@Param('id') id: string): Promise<string> {
     return this.clientService.deleteImage(id);
     return;
   }
 
+  @UseGuards(JwtAuthGuard)
   @Delete('/:id')
   remove(@Param('id') id: string): Promise<Client> {
     return this.clientService.remove(id);

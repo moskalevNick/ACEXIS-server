@@ -80,8 +80,11 @@ export class AuthService {
     };
   }
 
-  async logout(token: string) {
-    // return this.db.token.deleteMany({ where: { refreshToken: token } });
+  async logout(user: User) {
+    return this.prisma.user.update({
+      where: { id: user.id },
+      data: { refreshToken: null },
+    });
   }
 
   generateToken(data: User, isAccessToken: boolean): string {

@@ -24,9 +24,9 @@ export class AuthController {
     return this.authService.refresh(user);
   }
 
-  @Post('/logout/:token')
+  @Post('/logout')
   @UseGuards(JwtRefreshGuard)
-  logout(@Param('token') token) {
-    return this.authService.logout(token);
+  logout(@Req() { user }) {
+    return this.authService.logout(user);
   }
 }
