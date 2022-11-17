@@ -16,7 +16,7 @@ export class ExisService {
   }
 
   async create(
-    exisDto: Pick<Prisma.ExisCreateInput, 'text' | 'date'>,
+    exisDto: Pick<Prisma.ExisCreateInput, 'text'>,
     clientId: Client['id'],
   ) {
     const data: Prisma.ExisUncheckedCreateInput = {

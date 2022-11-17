@@ -46,7 +46,7 @@ model Image {
 
 model Visit {
   id   String   @id @default(auto()) @map("_id") @db.ObjectId
-  date DateTime @db.Date
+  date DateTime @default(now()) @db.Date
 
   exis     Exis?   @relation(fields: [exisId], references: [id])
   exisId   String? @db.ObjectId
@@ -58,9 +58,9 @@ model Visit {
 
 model Exis {
   id       String   @id @default(auto()) @map("_id") @db.ObjectId
-  date     DateTime @db.Date
+  date     DateTime @default(now()) @db.Date
   text     String   @db.String
-  isPinned Boolean? @db.Bool
+  isPinned Boolean  @default(false) @db.Bool
   visit    Visit[]
 
   client   Client @relation(fields: [clientId], references: [id])

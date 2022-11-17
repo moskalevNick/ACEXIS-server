@@ -30,11 +30,7 @@ export class ExisController {
     createExisDto: Pick<Prisma.ExisCreateInput, 'text'>,
     @Param('clientId') clientId: Client['id'],
   ) {
-    const newExis = {
-      ...createExisDto,
-      date: new Date(),
-    };
-    return this.exisService.create(newExis, clientId);
+    return this.exisService.create(createExisDto, clientId);
   }
 
   @Put('/:id')
