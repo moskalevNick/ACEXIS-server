@@ -57,10 +57,11 @@ model Visit {
 }
 
 model Exis {
-  id    String   @id @default(auto()) @map("_id") @db.ObjectId
-  date  DateTime @db.Date
-  text  String   @db.String
-  visit Visit[]
+  id       String   @id @default(auto()) @map("_id") @db.ObjectId
+  date     DateTime @db.Date
+  text     String   @db.String
+  isPinned Boolean? @db.Bool
+  visit    Visit[]
 
   client   Client @relation(fields: [clientId], references: [id])
   clientId String @db.ObjectId

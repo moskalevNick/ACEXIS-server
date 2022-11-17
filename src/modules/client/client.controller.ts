@@ -46,7 +46,7 @@ export class ClientController {
     >,
     @Req() req: any,
   ) {
-    return this.clientService.create(createClientDto, req.user.userId);
+    return this.clientService.create(createClientDto, req.user.id);
   }
 
   @UseGuards(JwtAuthGuard)
