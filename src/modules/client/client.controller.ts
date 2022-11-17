@@ -1,5 +1,5 @@
 import { FileInterceptor } from '@nestjs/platform-express';
-import { Client, Prisma } from '@prisma/client';
+import { Client, Prisma, Image } from '@prisma/client';
 import {
   Body,
   Controller,
@@ -63,25 +63,24 @@ export class ClientController {
   }
 
   @UseGuards(JwtAuthGuard)
-  @Post('image/:id')
+  @Delete('/:id')
+  remove(@Param('id') id: string): Promise<Client> {
+    return this.clientService.remove(id);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Post('image/:clientId')
   @UseInterceptors(FileInterceptor('file'))
   public async uploadImage(
-    @Param('id') id: string,
+    @Param('clientId') clientId: string,
     @UploadedFile() file: Express.Multer.File,
-  ): Promise<string> {
-    return this.clientService.uploadImage(id, file);
+  ): Promise<Image> {
+    return this.clientService.uploadImage(clientId, file);
   }
 
   @UseGuards(JwtAuthGuard)
   @Delete('image/:id')
-  public async deleteImage(@Param('id') id: string): Promise<string> {
+  public async deleteImage(@Param('id') id: string): Promise<Image> {
     return this.clientService.deleteImage(id);
-    return;
-  }
-
-  @UseGuards(JwtAuthGuard)
-  @Delete('/:id')
-  remove(@Param('id') id: string): Promise<Client> {
-    return this.clientService.remove(id);
   }
 }

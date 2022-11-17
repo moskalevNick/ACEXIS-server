@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { Prisma, Client, User } from '@prisma/client';
+import { Prisma, Client, User, Image } from '@prisma/client';
 
 import { PrismaService } from '../prisma/prisma.service';
 import { ImageService } from '../image/image.service';
@@ -86,8 +86,11 @@ export class ClientService {
     });
   }
 
-  async uploadImage(id: string, file: Express.Multer.File): Promise<string> {
-    const client = await this.getbyId(id);
+  async uploadImage(
+    clientId: string,
+    file: Express.Multer.File,
+  ): Promise<Image> {
+    const client = await this.getbyId(clientId);
 
     const { fullName, name } = await this.storageProvider.upload(
       file,
@@ -95,18 +98,14 @@ export class ClientService {
       client.id,
     );
 
-    this.imageService.create({
+    return this.imageService.create({
       path: fullName,
       clientId: client.id,
       publicUrl: `https://firebasestorage.googleapis.com/v0/b/acexis-c375d.appspot.com/o/client-images%2F${name}?alt=media`,
     });
-
-    return `client ${client.name} was successfully updated`;
   }
 
   async deleteImage(id: string) {
-    await this.imageService.delete(id);
-
-    return 'image was successfully deleted';
+    return this.imageService.delete(id);
   }
 }
