@@ -69,6 +69,15 @@ export class ClientService {
   async remove(id: Client['id']): Promise<Client> {
     return this.prisma.client.delete({
       where: { id },
+      select: {
+        id: true,
+        name: true,
+        status: true,
+        phone: true,
+        bills: true,
+        userId: true,
+        images: true,
+      },
     });
   }
 
