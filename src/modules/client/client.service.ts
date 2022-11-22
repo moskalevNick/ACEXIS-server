@@ -32,6 +32,51 @@ export class ClientService {
     return clients;
   }
 
+  async getClientsWithFilters(
+    userId: User['id'],
+    searchString: string,
+    dateFrom?: string,
+    dateTo?: string,
+    billFrom?: number,
+    billTo?: number,
+    status?: string,
+  ): Promise<Client[]> {
+    console.log('searchString: ', searchString);
+    console.log('dateFrom: ', dateFrom);
+    console.log('dateTo: ', dateTo);
+    console.log('billFrom: ', billFrom);
+    console.log('billTo: ', billTo);
+    console.log('status: ', status);
+
+    const clients = await this.prisma.client.findMany({
+      where: {
+        userId,
+        OR: [
+          {
+            name: { contains: searchString },
+          },
+          {
+            phone: { contains: searchString },
+          },
+          {
+            status: { equals: status },
+          },
+        ],
+      },
+      select: {
+        id: true,
+        name: true,
+        status: true,
+        phone: true,
+        bills: true,
+        userId: true,
+        images: true,
+      },
+    });
+
+    return clients;
+  }
+
   async getbyId(id: Client['id']): Promise<any> {
     const client = await this.prisma.client.findUnique({
       where: { id },
@@ -61,7 +106,19 @@ export class ClientService {
       userId,
     };
 
-    const newClient = await this.prisma.client.create({ data });
+    const newClient = await this.prisma.client.create({
+      data,
+      select: {
+        id: true,
+        name: true,
+        status: true,
+        phone: true,
+        bills: true,
+        userId: true,
+        images: true,
+        visits: true,
+      },
+    });
 
     return newClient;
   }

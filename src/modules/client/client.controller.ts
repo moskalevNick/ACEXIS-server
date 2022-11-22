@@ -29,7 +29,31 @@ export class ClientController {
     return this.clientService.getClientsByUserId(req.user.id);
   }
 
-  @Get(':id')
+  @UseGuards(JwtAuthGuard)
+  @Get(
+    'filtered/:searchString?/:dateFrom?/:dateTo?/:billFrom?/:billTo?/:status?',
+  )
+  getAllWithFilters(
+    @Req() req: any,
+    @Param('searchString') searchString: string,
+    @Param('dateFrom') dateFrom: string,
+    @Param('dateTo') dateTo: string,
+    @Param('billFrom') billFrom: number,
+    @Param('billTo') billTo: number,
+    @Param('status') status: string,
+  ): Promise<Client[]> {
+    return this.clientService.getClientsWithFilters(
+      req.user.id,
+      searchString,
+      dateFrom,
+      dateTo,
+      billFrom,
+      billTo,
+      status,
+    );
+  }
+
+  @Get('id/:id')
   getOne(@Param('id') id: string): Promise<Client> {
     return this.clientService.getbyId(id);
   }
