@@ -61,7 +61,19 @@ export class ClientService {
       userId,
     };
 
-    const newClient = await this.prisma.client.create({ data });
+    const newClient = await this.prisma.client.create({
+      data,
+      select: {
+        id: true,
+        name: true,
+        status: true,
+        phone: true,
+        bills: true,
+        userId: true,
+        images: true,
+        visits: true,
+      },
+    });
 
     return newClient;
   }
