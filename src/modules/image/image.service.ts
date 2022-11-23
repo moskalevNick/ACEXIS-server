@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { Prisma, Image } from '@prisma/client';
+import { Prisma, Image, userAvatar } from '@prisma/client';
 import { FirebaseStorageProvider } from 'src/providers/firebase-storage.provider';
 
 import { PrismaService } from '../prisma/prisma.service';
@@ -36,5 +36,24 @@ export class ImageService {
     return this.prisma.image.findMany({
       where: { clientId },
     });
+  }
+
+  async createUserAvatar(
+    imageDto: Prisma.userAvatarUncheckedCreateInput,
+  ): Promise<userAvatar> {
+    const oldAvatar = await this.prisma.userAvatar.findFirst({
+      where: { userId: imageDto.userId },
+    });
+
+    if (oldAvatar) {
+      await this.storageProvider.delete(oldAvatar.path);
+      await this.prisma.userAvatar.delete({
+        where: { id: oldAvatar.id },
+      });
+    }
+
+    const newAvatar = await this.prisma.userAvatar.create({ data: imageDto });
+
+    return newAvatar;
   }
 }

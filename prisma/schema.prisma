@@ -8,13 +8,29 @@ generator client {
 }
 
 model User {
-  id           String   @id @default(auto()) @map("_id") @db.ObjectId
-  username     String   @db.String
-  password     String   @db.String
-  refreshToken String?  @db.String
+  id           String      @id @default(auto()) @map("_id") @db.ObjectId
+  username     String      @db.String
+  password     String      @db.String
+  refreshToken String?     @db.String
+  minBill      Float       @default(0) @db.Double
+  maxBill      Float       @default(1500) @db.Double
+  linkBot      String?     @db.String
+  avatar       userAvatar?
+  isRus        Boolean     @default(false)
+  isDark       Boolean     @default(false)
   clients      Client[]
 
   @@map("users")
+}
+
+model userAvatar {
+  id        String @id @default(auto()) @map("_id") @db.ObjectId
+  path      String @db.String
+  publicUrl String @db.String
+  user      User   @relation(fields: [userId], references: [id])
+  userId    String @unique @db.ObjectId
+
+  @@map("userAvatar")
 }
 
 model Client {
