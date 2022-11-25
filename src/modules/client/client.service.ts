@@ -1,5 +1,6 @@
+import { clientFilterDto } from './dto/clientFilter.dto';
 import { Injectable } from '@nestjs/common';
-import { Prisma, Client, User, Image } from '@prisma/client';
+import { Prisma, Client, User, Image, Visit } from '@prisma/client';
 
 import { PrismaService } from '../prisma/prisma.service';
 import { ImageService } from '../image/image.service';
@@ -26,6 +27,8 @@ export class ClientService {
         bills: true,
         userId: true,
         images: true,
+        visits: true,
+        exises: true,
       },
     });
 
@@ -33,33 +36,43 @@ export class ClientService {
   }
 
   async getClientsWithFilters(
+    filterDto: clientFilterDto,
     userId: User['id'],
-    searchString: string,
-    dateFrom?: string,
-    dateTo?: string,
-    billFrom?: number,
-    billTo?: number,
-    status?: string,
   ): Promise<Client[]> {
-    console.log('searchString: ', searchString);
-    console.log('dateFrom: ', dateFrom);
-    console.log('dateTo: ', dateTo);
-    console.log('billFrom: ', billFrom);
-    console.log('billTo: ', billTo);
-    console.log('status: ', status);
-
+    const { searchString, dateFrom, dateTo, billFrom, billTo, status } =
+      filterDto;
+    console.log(searchString, dateFrom, dateTo, billFrom, billTo, status);
     const clients = await this.prisma.client.findMany({
       where: {
-        userId,
-        OR: [
+        AND: [
           {
-            name: { contains: searchString },
+            userId,
+            status: {
+              in: status,
+            },
+            visits: {
+              every: {
+                date: {
+                  gte: dateFrom,
+                  lte: dateTo,
+                },
+              },
+            },
+            // bills: {
+            //   equals: {
+            //     _avg: 100
+            //   }
+            // },
           },
           {
-            phone: { contains: searchString },
-          },
-          {
-            status: { equals: status },
+            OR: [
+              {
+                name: { contains: searchString },
+              },
+              {
+                phone: { contains: searchString },
+              },
+            ],
           },
         ],
       },
@@ -71,8 +84,11 @@ export class ClientService {
         bills: true,
         userId: true,
         images: true,
+        visits: true,
       },
     });
+
+    console.log(clients.length);
 
     return clients;
   }

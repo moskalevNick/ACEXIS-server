@@ -11,6 +11,7 @@ import {
   Param,
   Post,
   Put,
+  Query,
   Req,
   UploadedFile,
   UseGuards,
@@ -18,6 +19,7 @@ import {
 } from '@nestjs/common';
 import { ClientService } from './client.service';
 import { JwtAuthGuard } from 'src/commons/guards/accessToken.guard';
+import { clientFilterDto } from './dto/clientFilter.dto';
 
 @Controller('clients')
 export class ClientController {
@@ -25,32 +27,15 @@ export class ClientController {
 
   @UseGuards(JwtAuthGuard)
   @Get()
-  getAll(@Req() req: any): Promise<Client[]> {
-    return this.clientService.getClientsByUserId(req.user.id);
-  }
-
-  @UseGuards(JwtAuthGuard)
-  @Get(
-    'filtered/:searchString?/:dateFrom?/:dateTo?/:billFrom?/:billTo?/:status?',
-  )
-  getAllWithFilters(
+  getClients(
     @Req() req: any,
-    @Param('searchString') searchString: string,
-    @Param('dateFrom') dateFrom: string,
-    @Param('dateTo') dateTo: string,
-    @Param('billFrom') billFrom: number,
-    @Param('billTo') billTo: number,
-    @Param('status') status: string,
+    @Query() filterDto: clientFilterDto,
   ): Promise<Client[]> {
-    return this.clientService.getClientsWithFilters(
-      req.user.id,
-      searchString,
-      dateFrom,
-      dateTo,
-      billFrom,
-      billTo,
-      status,
-    );
+    if (Object.keys(filterDto).length) {
+      return this.clientService.getClientsWithFilters(filterDto, req.user.id);
+    } else {
+      return this.clientService.getClientsByUserId(req.user.id);
+    }
   }
 
   @Get('id/:id')
