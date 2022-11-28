@@ -42,9 +42,6 @@ export class AuthService {
   }> {
     const candidate = await this.userService.findByUsername(username);
     const userData = await this.userService.findById(candidate.id);
-    if (userData.refreshToken) {
-      delete userData['refreshToken'];
-    }
 
     if (!candidate) {
       throw new Error('User with this username not found');
@@ -59,6 +56,10 @@ export class AuthService {
     const accessToken = this.generateToken(candidate, true);
     const refreshToken = this.generateToken(candidate, false);
     await this.setNewToken(candidate.id, refreshToken);
+
+    if (userData.refreshToken === null) {
+      delete userData.refreshToken;
+    }
 
     return {
       accessToken,
