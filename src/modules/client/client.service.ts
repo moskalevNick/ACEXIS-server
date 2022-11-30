@@ -24,7 +24,8 @@ export class ClientService {
         name: true,
         status: true,
         phone: true,
-        bills: true,
+        averageBill: true,
+        billsAmount: true,
         userId: true,
         images: true,
         visits: true,
@@ -41,7 +42,6 @@ export class ClientService {
   ): Promise<Client[]> {
     const { searchString, dateFrom, dateTo, billFrom, billTo, status } =
       filterDto;
-    console.log(searchString, dateFrom, dateTo, billFrom, billTo, status);
     const clients = await this.prisma.client.findMany({
       where: {
         AND: [
@@ -58,11 +58,10 @@ export class ClientService {
                 },
               },
             },
-            // bills: {
-            //   equals: {
-            //     _avg: 100
-            //   }
-            // },
+            averageBill: {
+              gte: +billFrom,
+              lte: +billTo,
+            },
           },
           {
             OR: [
@@ -81,14 +80,13 @@ export class ClientService {
         name: true,
         status: true,
         phone: true,
-        bills: true,
+        averageBill: true,
+        billsAmount: true,
         userId: true,
         images: true,
         visits: true,
       },
     });
-
-    console.log(clients.length);
 
     return clients;
   }
@@ -101,7 +99,8 @@ export class ClientService {
         name: true,
         status: true,
         phone: true,
-        bills: true,
+        averageBill: true,
+        billsAmount: true,
         userId: true,
         images: true,
         visits: true,
@@ -129,7 +128,8 @@ export class ClientService {
         name: true,
         status: true,
         phone: true,
-        bills: true,
+        averageBill: true,
+        billsAmount: true,
         userId: true,
         images: true,
         visits: true,
@@ -147,7 +147,8 @@ export class ClientService {
         name: true,
         status: true,
         phone: true,
-        bills: true,
+        averageBill: true,
+        billsAmount: true,
         userId: true,
         images: true,
       },
