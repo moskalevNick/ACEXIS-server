@@ -40,6 +40,7 @@
     "jwt-decode": "^3.1.2",
     "mongoose": "6.2.2",
     "multer-firebase-storage": "^4.1.2",
+    "now": "^21.0.1",
     "passport": "^0.6.0",
     "passport-jwt": "^4.0.0",
     "passport-local": "^1.0.0",
