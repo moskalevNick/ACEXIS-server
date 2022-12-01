@@ -27,7 +27,7 @@ export class ExisController {
   @Header('Cache-Control', 'none')
   create(
     @Body()
-    createExisDto: Pick<Prisma.ExisCreateInput, 'text'>,
+    createExisDto: Pick<Prisma.ExisCreateInput, 'text' | 'visit'>,
     @Param('clientId') clientId: Client['id'],
   ) {
     return this.exisService.create(createExisDto, clientId);

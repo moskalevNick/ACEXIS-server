@@ -108,12 +108,7 @@ export class RecognizerService {
     }
     if ((checkClientDto.mode = 'status')) {
       if (checkClientDto.error !== 0) {
-        console.log(
-          'error message: ',
-          checkClientDto.message,
-          '. Error code: ',
-          checkClientDto.error,
-        );
+        return `there was an error with message: ${checkClientDto.message}. Error code: ${checkClientDto.error}`;
       }
     }
   }
