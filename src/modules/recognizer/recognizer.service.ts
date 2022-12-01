@@ -106,7 +106,7 @@ export class RecognizerService {
         } else return;
       });
     }
-    if ((checkClientDto.mode = 'status')) {
+    if (checkClientDto.mode === 'status') {
       if (checkClientDto.error !== 0) {
         return `there was an error with message: ${checkClientDto.message}. Error code: ${checkClientDto.error}`;
       }
