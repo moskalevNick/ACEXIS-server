@@ -48,63 +48,66 @@ export class RecognizerService {
         },
       });
       console.log('in: ', checkClientDto);
-
-      await checkClientDto.faces.forEach(async (face: any) => {
-        if (face.accuracy >= 85) {
-          const candidate = await this.prisma.client.findUnique({
-            where: {
-              face_id: face.face_id,
-            },
-          });
-
-          if (candidate) {
-            const visits = await this.visitService.getVisitsByClientId(
-              candidate.id,
-            );
-            const threeHoursAgo = new Date(
-              new Date().setHours(new Date().getHours() - 3),
-            );
-
-            let lastVisit: Visit;
-
-            visits.forEach((visit) => {
-              if (lastVisit) {
-                visit.date > lastVisit.date;
-              }
-              lastVisit = visit;
-            });
-
-            if (!lastVisit || lastVisit.date < threeHoursAgo) {
-              await this.visitService.create({}, candidate.id);
-            } else {
-              return;
-            }
-          } else {
-            const newClient = await this.clientService.create(
-              {
+      if (checkClientDto.faces.length) {
+        await checkClientDto.faces.forEach(async (face: any) => {
+          if (face.accuracy >= 85) {
+            const candidate = await this.prisma.client.findUnique({
+              where: {
                 face_id: face.face_id,
               },
-              recognizer.userId,
-            );
+            });
 
-            const clientImage: Express.Multer.File = {
-              fieldname: '',
-              originalname: `recognizer_image___`,
-              encoding: '',
-              mimetype: '',
-              size: face.frame_content.length,
-              destination: '',
-              filename: '',
-              path: '',
-              buffer: Buffer.from(face.frame_content, 'base64'),
-              stream: face.frame_content,
-            };
+            if (candidate) {
+              const visits = await this.visitService.getVisitsByClientId(
+                candidate.id,
+              );
+              const threeHoursAgo = new Date(
+                new Date().setHours(new Date().getHours() - 3),
+              );
 
-            await this.clientService.uploadImage(newClient.id, clientImage);
-            await this.visitService.create({}, newClient.id);
-          }
-        } else return;
-      });
+              let lastVisit: Visit;
+
+              visits.forEach((visit) => {
+                if (lastVisit) {
+                  visit.date > lastVisit.date;
+                }
+                lastVisit = visit;
+              });
+
+              if (!lastVisit || lastVisit.date < threeHoursAgo) {
+                await this.visitService.create({}, candidate.id);
+              } else {
+                return;
+              }
+            } else {
+              const newClient = await this.clientService.create(
+                {
+                  face_id: face.face_id,
+                },
+                recognizer.userId,
+              );
+
+              const clientImage: Express.Multer.File = {
+                fieldname: '',
+                originalname: `recognizer_image___`,
+                encoding: '',
+                mimetype: '',
+                size: face.frame_content.length,
+                destination: '',
+                filename: '',
+                path: '',
+                buffer: Buffer.from(face.frame_content, 'base64'),
+                stream: face.frame_content,
+              };
+
+              await this.clientService.uploadImage(newClient.id, clientImage);
+              await this.visitService.create({}, newClient.id);
+            }
+          } else return;
+        });
+      } else {
+        return 'faces not found';
+      }
     }
     if (checkClientDto.mode === 'status') {
       if (checkClientDto.error !== 0) {
