@@ -1,11 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { Prisma, Recognizer, User, Visit } from '@prisma/client';
-import fs from 'fs';
 
 import { ClientService } from './../client/client.service';
 import { VisitService } from './../visits/visit.service';
 import { PrismaService } from '../prisma/prisma.service';
-import { async } from '@firebase/util';
 
 @Injectable()
 export class RecognizerService {
@@ -41,13 +39,15 @@ export class RecognizerService {
   }
 
   async check(checkClientDto: any): Promise<any> {
+    console.log('in method', checkClientDto);
+
     if (checkClientDto.mode === 'face_event') {
       const recognizer = await this.prisma.recognizer.findUnique({
         where: {
           device_id: checkClientDto.device_id,
         },
       });
-      console.log('in: ', checkClientDto);
+      console.log('in face mode: ', checkClientDto);
       if (checkClientDto.faces.length) {
         await checkClientDto.faces.forEach(async (face: any) => {
           if (face.accuracy >= 85) {
