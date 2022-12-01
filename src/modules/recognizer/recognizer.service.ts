@@ -39,8 +39,6 @@ export class RecognizerService {
   }
 
   async check(checkClientDto: any): Promise<any> {
-    console.log('in method', checkClientDto);
-
     if (checkClientDto.mode === 'face_event') {
       const recognizer = await this.prisma.recognizer.findUnique({
         where: {
@@ -111,6 +109,9 @@ export class RecognizerService {
     }
     if (checkClientDto.mode === 'status') {
       if (checkClientDto.error !== 0) {
+        console.log(
+          `there was an error with message: ${checkClientDto.message}. Error code: ${checkClientDto.error}`,
+        );
         return `there was an error with message: ${checkClientDto.message}. Error code: ${checkClientDto.error}`;
       }
     }
