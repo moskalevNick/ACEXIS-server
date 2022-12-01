@@ -41,7 +41,7 @@ export class RecognizerService {
   }
 
   async check(checkClientDto: any): Promise<any> {
-    if ((checkClientDto.mode = 'face_event')) {
+    if (checkClientDto.mode === 'face_event') {
       const recognizer = await this.prisma.recognizer.findUnique({
         where: {
           device_id: checkClientDto.device_id,
