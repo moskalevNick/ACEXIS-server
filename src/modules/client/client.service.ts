@@ -30,6 +30,7 @@ export class ClientService {
         images: true,
         visits: true,
         exises: true,
+        face_id: true,
       },
     });
 
@@ -85,6 +86,7 @@ export class ClientService {
         userId: true,
         images: true,
         visits: true,
+        face_id: true,
       },
     });
 
@@ -133,6 +135,7 @@ export class ClientService {
         userId: true,
         images: true,
         visits: true,
+        face_id: true,
       },
     });
 
@@ -151,6 +154,7 @@ export class ClientService {
         billsAmount: true,
         userId: true,
         images: true,
+        face_id: true,
       },
     });
   }

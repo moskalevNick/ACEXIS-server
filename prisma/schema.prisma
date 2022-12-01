@@ -8,17 +8,18 @@ generator client {
 }
 
 model User {
-  id           String      @id @default(auto()) @map("_id") @db.ObjectId
-  username     String      @db.String
-  password     String      @db.String
-  refreshToken String?     @db.String
-  minBill      Float       @default(0) @db.Double
-  maxBill      Float       @default(1500) @db.Double
-  linkBot      String?     @db.String
+  id           String       @id @default(auto()) @map("_id") @db.ObjectId
+  username     String       @db.String
+  password     String       @db.String
+  refreshToken String?      @db.String
+  minBill      Float        @default(0) @db.Double
+  maxBill      Float        @default(1500) @db.Double
+  linkBot      String?      @db.String
   avatar       userAvatar?
-  isRus        Boolean     @default(false)
-  isDark       Boolean     @default(false)
+  isRus        Boolean      @default(false)
+  isDark       Boolean      @default(false)
   clients      Client[]
+  Recognizer   Recognizer[]
 
   @@map("users")
 }
@@ -35,10 +36,11 @@ model userAvatar {
 
 model Client {
   id          String  @id @default(auto()) @map("_id") @db.ObjectId
-  name        String  @db.String
-  status      String  @db.String
-  phone       String  @db.String
-  averageBill Float?  @db.Double
+  face_id     String? @unique @db.String
+  name        String  @default("Unknown client") @db.String
+  status      String  @default("ghost") @db.String
+  phone       String  @default("") @db.String
+  averageBill Float?  @default(0) @db.Double
   billsAmount Int     @default(0) @db.Int
   images      Image[]
   exises      Exis[]
@@ -84,4 +86,15 @@ model Exis {
   clientId String @db.ObjectId
 
   @@map("exises")
+}
+
+model Recognizer {
+  id        String @id @default(auto()) @map("_id") @db.ObjectId
+  device_id String @unique @db.String
+  device_ip String @db.String
+
+  user   User   @relation(fields: [userId], references: [id])
+  userId String @db.ObjectId
+
+  @@map("recognizers")
 }

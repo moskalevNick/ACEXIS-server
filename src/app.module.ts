@@ -1,3 +1,4 @@
+import { RecognizerModule } from './modules/recognizer/recognizer.module';
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { ClientModule } from './modules/client/client.module';
@@ -18,6 +19,7 @@ import { VisitModule } from './modules/visits/visit.module';
     ImageModule,
     UsersModule,
     AuthModule,
+    RecognizerModule,
   ],
 })
 export class AppModule {}
