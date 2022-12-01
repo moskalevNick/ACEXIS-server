@@ -3,7 +3,18 @@
   "builds": [
     {
       "src": "src/main.ts",
-      "use": "@vercel/node"
+      "use": "@vercel/node",
+      "env": {
+        "DATABASE_URL": "mongodb+srv://nikolay:22101995Kolya@clustertodo.p7btg.mongodb.net/acexisDB?retryWrites=true&w=majority",
+        "FIREBASE_PROJECT_ID": "acexis-c375d",
+        "FIREBASE_API_KEY": "AIzaSyAaed5wB9_qWZJlySRk8-llXK9mlU-7R-E",
+        "FIREBASE_AUTH_DOMAIN": "acexis-c375d.firebaseapp.com",
+        "FIREBASE_STORAGE_BUCKET": "acexis-c375d.appspot.com",
+        "FIREBASE_MESSAGING_SENDER_ID": "1085458018160",
+        "FIREBASE_APP_ID": "1:1085458018160:web:61b04a650e09622340a9b5",
+        "JWT_ACCESS_SECRET": "acexisSecretAccessEvo",
+        "JWT_REFRESH_SECRET": "acexisSecretRefreshEvo"
+      }
     }
   ],
   "routes": [
