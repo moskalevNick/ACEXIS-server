@@ -8,10 +8,8 @@
   "scripts": {
     "prebuild": "rimraf dist",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
-    "nx": "nx",
     "start": "node dist/apps/server/main.js",
     "build": "npm run nx -- build server",
-    "test": "nx test",
     "start:dev": "nest start --watch",
     "start:debug": "nest start --debug --watch",
     "start:prod": "node dist/main.js",
