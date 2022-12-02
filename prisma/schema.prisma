@@ -67,10 +67,10 @@ model Visit {
   id   String   @id @default(auto()) @map("_id") @db.ObjectId
   date DateTime @default(now()) @db.Date
 
-  exis     Exis?   @relation(fields: [exisId], references: [id])
-  exisId   String? @db.ObjectId
-  client   Client  @relation(fields: [clientId], references: [id])
-  clientId String  @db.ObjectId
+  exis     Exis[]
+  exisId   String[] @db.ObjectId
+  client   Client   @relation(fields: [clientId], references: [id])
+  clientId String   @db.ObjectId
 
   @@map("visits")
 }
@@ -80,10 +80,11 @@ model Exis {
   date     DateTime @default(now()) @db.Date
   text     String   @db.String
   isPinned Boolean  @default(false) @db.Bool
-  visit    Visit[]
 
-  client   Client @relation(fields: [clientId], references: [id])
-  clientId String @db.ObjectId
+  visit    Visit?  @relation(fields: [visitId], references: [id])
+  visitId  String? @db.ObjectId
+  client   Client  @relation(fields: [clientId], references: [id])
+  clientId String  @db.ObjectId
 
   @@map("exises")
 }

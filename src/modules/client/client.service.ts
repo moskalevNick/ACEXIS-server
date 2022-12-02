@@ -86,6 +86,7 @@ export class ClientService {
         userId: true,
         images: true,
         visits: true,
+        exises: true,
         face_id: true,
       },
     });

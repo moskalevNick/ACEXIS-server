@@ -25,7 +25,7 @@ export class VisitController {
   @Header('Cache-Control', 'none')
   create(
     @Body()
-    createVisitDto: Pick<Prisma.VisitUncheckedCreateInput, 'exisId'>,
+    createVisitDto: Pick<Prisma.VisitUncheckedCreateInput, 'exis'>,
     @Param('clientId') clientId: Client['id'],
   ) {
     return this.visitService.create(createVisitDto, clientId);

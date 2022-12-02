@@ -1,11 +1,15 @@
 import { Injectable } from '@nestjs/common';
-import { Client, Exis, Prisma } from '@prisma/client';
+import { Client, Exis, Prisma, Visit } from '@prisma/client';
 
+import { VisitService } from './../visits/visit.service';
 import { PrismaService } from '../prisma/prisma.service';
 
 @Injectable()
 export class ExisService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private visitService: VisitService,
+  ) {}
 
   async getExisesByClientId(clientId: Client['id']): Promise<Exis[]> {
     const exises = await this.prisma.exis.findMany({
@@ -19,12 +23,32 @@ export class ExisService {
     exisDto: Pick<Prisma.ExisCreateInput, 'text'>,
     clientId: Client['id'],
   ) {
+    const visits = await this.visitService.getVisitsByClientId(clientId);
+    let lastVisit: Visit;
+    visits.forEach((visit) => {
+      if (lastVisit) {
+        visit.date > lastVisit.date;
+      }
+      lastVisit = visit;
+    });
+
+    const threeHoursAgo = new Date(
+      new Date().setHours(new Date().getHours() - 3),
+    );
+
     const data: Prisma.ExisUncheckedCreateInput = {
       ...exisDto,
+      visitId: undefined,
       clientId,
     };
 
     const createdExis = await this.prisma.exis.create({ data });
+
+    if (lastVisit && lastVisit.date > threeHoursAgo) {
+      await this.visitService.update(lastVisit.id, {
+        exisId: createdExis.id,
+      });
+    }
 
     return createdExis;
   }
