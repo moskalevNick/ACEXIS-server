@@ -2,14 +2,11 @@ import { v4 as uuidv4 } from 'uuid';
 import { Injectable } from '@nestjs/common';
 import { Image } from '@prisma/client';
 import { getStorage, ref, uploadBytes, deleteObject } from 'firebase/storage';
-import { ImageService } from 'src/modules/image/image.service';
 
 import path from 'path';
 
 @Injectable()
 export class FirebaseStorageProvider {
-  constructor() {}
-
   public async upload(
     file: Express.Multer.File,
     folder: string,
