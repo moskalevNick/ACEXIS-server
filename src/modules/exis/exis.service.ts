@@ -38,7 +38,6 @@ export class ExisService {
 
     const data: Prisma.ExisUncheckedCreateInput = {
       ...exisDto,
-      visitId: undefined,
       clientId,
     };
 
