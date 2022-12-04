@@ -52,7 +52,7 @@ export class ClientService {
               in: status,
             },
             visits: {
-              every: {
+              some: {
                 date: {
                   gte: dateFrom,
                   lte: dateTo,
