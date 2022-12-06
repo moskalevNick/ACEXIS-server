@@ -35,13 +35,13 @@ model userAvatar {
 }
 
 model Client {
-  id          String  @id @default(auto()) @map("_id") @db.ObjectId
-  face_id     String? @unique @db.String
-  name        String  @default("Unknown client") @db.String
-  status      String  @default("ghost") @db.String
-  phone       String  @default("") @db.String
-  averageBill Float?  @default(0) @db.Double
-  billsAmount Int     @default(0) @db.Int
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  face_id     String[] @db.String
+  name        String   @default("Unknown client") @db.String
+  status      String   @default("ghost") @db.String
+  phone       String   @default("") @db.String
+  averageBill Float?   @default(0) @db.Double
+  billsAmount Int      @default(0) @db.Int
   images      Image[]
   exises      Exis[]
   visits      Visit[]

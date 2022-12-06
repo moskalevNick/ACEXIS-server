@@ -1,3 +1,4 @@
+import { firstValueFrom } from 'rxjs';
 import { Injectable } from '@nestjs/common';
 import { Prisma, Recognizer, User, Visit } from '@prisma/client';
 
@@ -45,13 +46,16 @@ export class RecognizerService {
           device_id: checkClientDto.device_id,
         },
       });
-      console.log('in face mode: ', checkClientDto);
+      // console.log('in face mode: ', checkClientDto);
       if (checkClientDto.faces.length) {
         await checkClientDto.faces.forEach(async (face: any) => {
           if (face.accuracy >= 85) {
-            const candidate = await this.prisma.client.findUnique({
+            console.log('in if: ', face);
+            const candidate = await this.prisma.client.findFirst({
               where: {
-                face_id: face.face_id,
+                face_id: {
+                  hasSome: face.face_id,
+                },
               },
             });
 
@@ -78,12 +82,16 @@ export class RecognizerService {
                 return;
               }
             } else {
+              console.log('in else: ', face);
+
               const newClient = await this.clientService.create(
                 {
-                  face_id: face.face_id,
+                  face_id: [face.face_id],
                 },
                 recognizer.userId,
               );
+
+              console.log('newClient: ', newClient);
 
               const clientImage: Express.Multer.File = {
                 fieldname: '',
