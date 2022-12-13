@@ -40,8 +40,6 @@ export class RecognizerService {
   }
 
   async check(checkClientDto: any): Promise<any> {
-    console.log('req: ', checkClientDto);
-
     if (checkClientDto.mode === 'face_event') {
       if (checkClientDto.faces.length) {
         await checkClientDto.faces.forEach(async (face: any) => {
