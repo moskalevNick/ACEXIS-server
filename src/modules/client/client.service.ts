@@ -31,6 +31,8 @@ export class ClientService {
         visits: true,
         exises: true,
         face_id: true,
+        lastIdentified: true,
+        similar: true,
       },
     });
 
@@ -67,10 +69,20 @@ export class ClientService {
           {
             OR: [
               {
-                name: { contains: searchString },
+                name: { contains: searchString, mode: 'insensitive' },
               },
               {
-                phone: { contains: searchString },
+                phone: { contains: searchString, mode: 'insensitive' },
+              },
+              {
+                exises: {
+                  some: {
+                    text: {
+                      contains: searchString,
+                      mode: 'insensitive',
+                    },
+                  },
+                },
               },
             ],
           },
@@ -88,6 +100,8 @@ export class ClientService {
         visits: true,
         exises: true,
         face_id: true,
+        lastIdentified: true,
+        similar: true,
       },
     });
 
@@ -107,6 +121,7 @@ export class ClientService {
         userId: true,
         images: true,
         visits: true,
+        similar: true,
       },
     });
     return client;
@@ -137,6 +152,8 @@ export class ClientService {
         images: true,
         visits: true,
         face_id: true,
+        lastIdentified: true,
+        similar: true,
       },
     });
 
@@ -156,6 +173,8 @@ export class ClientService {
         userId: true,
         images: true,
         face_id: true,
+        lastIdentified: true,
+        similar: true,
       },
     });
   }

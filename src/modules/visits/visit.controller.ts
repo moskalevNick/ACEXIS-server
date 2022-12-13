@@ -7,8 +7,9 @@ import {
   HttpStatus,
   Param,
   Post,
+  Put,
 } from '@nestjs/common';
-import { Client, Prisma } from '@prisma/client';
+import { Client, Prisma, Visit } from '@prisma/client';
 import { VisitService } from './visit.service';
 
 @Controller('visit')
@@ -29,5 +30,14 @@ export class VisitController {
     @Param('clientId') clientId: Client['id'],
   ) {
     return this.visitService.create(createVisitDto, clientId);
+  }
+
+  @Put(':id')
+  update(
+    @Body()
+    updateVisitDto: Pick<Prisma.VisitUpdateInput, 'exisId' | 'exis'>,
+    @Param('id') id: string,
+  ): Promise<Visit> {
+    return this.visitService.update(id, updateVisitDto);
   }
 }

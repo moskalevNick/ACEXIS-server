@@ -48,6 +48,7 @@ export class UsersService {
         isRus: true,
         isDark: true,
         avatar: true,
+        role: true,
       },
     });
   }
@@ -66,6 +67,7 @@ export class UsersService {
         isRus: true,
         isDark: true,
         avatar: true,
+        role: true,
       },
     });
   }

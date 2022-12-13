@@ -36,8 +36,11 @@ export class VisitService {
     return createdVisit;
   }
 
-  async update(visitId: Visit['id'], visitDto: Prisma.VisitUpdateInput) {
-    const createdVisit = await this.prisma.visit.update({
+  async update(
+    visitId: Visit['id'],
+    visitDto: Pick<Prisma.VisitUpdateInput, 'exisId' | 'exis'>,
+  ) {
+    const newVisit = await this.prisma.visit.update({
       where: {
         id: visitId,
       },
@@ -46,6 +49,6 @@ export class VisitService {
       },
     });
 
-    return createdVisit;
+    return newVisit;
   }
 }

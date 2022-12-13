@@ -27,9 +27,14 @@ export class ExisService {
     let lastVisit: Visit;
     visits.forEach((visit) => {
       if (lastVisit) {
-        visit.date > lastVisit.date;
+        if (visit.date > lastVisit.date) {
+          lastVisit = visit;
+        } else {
+          return;
+        }
+      } else {
+        lastVisit = visit;
       }
-      lastVisit = visit;
     });
 
     const threeHoursAgo = new Date(

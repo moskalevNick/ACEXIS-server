@@ -12,6 +12,7 @@ model User {
   username     String       @db.String
   password     String       @db.String
   refreshToken String?      @db.String
+  role         String       @default("user")
   minBill      Float        @default(0) @db.Double
   maxBill      Float        @default(1500) @db.Double
   linkBot      String?      @db.String
@@ -35,16 +36,19 @@ model userAvatar {
 }
 
 model Client {
-  id          String   @id @default(auto()) @map("_id") @db.ObjectId
-  face_id     String[] @db.String
-  name        String   @default("Unknown client") @db.String
-  status      String   @default("ghost") @db.String
-  phone       String   @default("") @db.String
-  averageBill Float?   @default(0) @db.Double
-  billsAmount Int      @default(0) @db.Int
-  images      Image[]
-  exises      Exis[]
-  visits      Visit[]
+  id             String    @id @default(auto()) @map("_id") @db.ObjectId
+  face_id        String[]  @db.String
+  name           String    @default("Unknown client") @db.String
+  status         String    @default("ghost") @db.String
+  phone          String    @default("") @db.String
+  averageBill    Float?    @default(0) @db.Double
+  billsAmount    Int       @default(0) @db.Int
+  lastIdentified DateTime? @db.Date
+
+  images  Image[]
+  exises  Exis[]
+  visits  Visit[]
+  similar Similar[]
 
   user   User   @relation(fields: [userId], references: [id])
   userId String @db.ObjectId
@@ -61,6 +65,27 @@ model Image {
   clientId String @db.ObjectId
 
   @@map("images")
+}
+
+model Similar {
+  id      String        @id @default(auto()) @map("_id") @db.ObjectId
+  face_id String        @db.String
+  image   SimilarImage?
+
+  client   Client @relation(fields: [clientId], references: [id])
+  clientId String @db.ObjectId
+
+  @@map("similar")
+}
+
+model SimilarImage {
+  id        String  @id @default(auto()) @map("_id") @db.ObjectId
+  path      String  @db.String
+  publicUrl String  @db.String
+  similar   Similar @relation(fields: [similarId], references: [id])
+  similarId String  @unique @db.ObjectId
+
+  @@map("similarImages")
 }
 
 model Visit {

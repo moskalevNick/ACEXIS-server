@@ -50,7 +50,6 @@ export class RecognizerService {
       if (checkClientDto.faces.length) {
         await checkClientDto.faces.forEach(async (face: any) => {
           if (face.accuracy >= 85) {
-            console.log('in if: ', face);
             const candidate = await this.prisma.client.findFirst({
               where: {
                 face_id: {
@@ -59,7 +58,58 @@ export class RecognizerService {
               },
             });
 
+            const minuteAgo = new Date(
+              new Date().setHours(new Date().getMinutes() - 1),
+            );
+
+            const similarClient = await this.prisma.client.findFirst({
+              where: {
+                lastIdentified: {
+                  isSet: true,
+                },
+              },
+              select: {
+                id: true,
+                name: true,
+                status: true,
+                phone: true,
+                averageBill: true,
+                billsAmount: true,
+                userId: true,
+                images: true,
+                visits: true,
+                exises: true,
+                face_id: true,
+                lastIdentified: true,
+                similar: true,
+              },
+            });
+
+            console.log(similarClient);
+
+            if (similarClient.lastIdentified > minuteAgo) {
+              // const oldSimilars = similarClient.
+              // await this.clientService.update(similarClient.id, {
+              //   ...similarClient,
+              // });
+            } else {
+              await this.clientService.update(candidate.id, {
+                ...candidate,
+                lastIdentified: undefined,
+              });
+            }
+
             if (candidate) {
+              if (candidate.status === 'wheel') {
+                console.log('wheel status');
+                return;
+              }
+
+              await this.clientService.update(candidate.id, {
+                ...candidate,
+                lastIdentified: new Date(),
+              });
+
               const visits = await this.visitService.getVisitsByClientId(
                 candidate.id,
               );
