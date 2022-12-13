@@ -67,10 +67,6 @@ export class RecognizerService {
 
               const candidateUpdateDto = { ...candidate };
               delete candidateUpdateDto.id;
-              console.log('!!!!!!!!!!!!!!!!!: ', candidate.id, {
-                ...candidateUpdateDto,
-                lastIdentified: new Date(),
-              });
 
               await this.clientService.update(candidate.id, {
                 ...candidateUpdateDto,
@@ -118,7 +114,7 @@ export class RecognizerService {
                   clientWithLastIdentified.face_id,
                 );
 
-                const clientUpdateDto = clientWithLastIdentified;
+                const clientUpdateDto = { ...clientWithLastIdentified };
                 delete clientUpdateDto.id;
 
                 if (clientWithLastIdentified.lastIdentified) {
@@ -130,20 +126,20 @@ export class RecognizerService {
                     // });
                   } else {
                     console.log('lastIdentified undefined??????????????');
-                    await this.clientService.update(
-                      clientWithLastIdentified.id,
-                      {
-                        ...clientUpdateDto,
-                        lastIdentified: undefined,
-                      },
-                    );
+                    // await this.clientService.update(
+                    //   clientWithLastIdentified.id,
+                    //   {
+                    //     ...clientUpdateDto,
+                    //     lastIdentified: undefined,
+                    //   },
+                    // );
                   }
                 } else {
                   console.log('update lastIdentified!!!!!!!!!!!!');
-                  await this.clientService.update(clientWithLastIdentified.id, {
-                    ...clientUpdateDto,
-                    lastIdentified: new Date(),
-                  });
+                  // await this.clientService.update(clientWithLastIdentified.id, {
+                  //   ...clientUpdateDto,
+                  //   lastIdentified: new Date(),
+                  // });
                 }
               } else {
                 console.log('new client: ', face.face_id);
