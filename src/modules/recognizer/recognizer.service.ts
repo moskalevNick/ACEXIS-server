@@ -86,7 +86,7 @@ export class RecognizerService {
             });
 
             console.log('similarClient: ', similarClient);
-            if (similarClient.lastIdentified) {
+            if (similarClient && similarClient.lastIdentified) {
               if (similarClient.lastIdentified > minuteAgo) {
                 // const oldSimilars = similarClient.
                 // await this.clientService.update(similarClient.id, {
