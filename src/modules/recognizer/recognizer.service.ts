@@ -68,27 +68,11 @@ export class RecognizerService {
                   isSet: true,
                 },
               },
-              select: {
-                id: true,
-                name: true,
-                status: true,
-                phone: true,
-                averageBill: true,
-                billsAmount: true,
-                userId: true,
-                images: true,
-                visits: true,
-                exises: true,
-                face_id: true,
-                lastIdentified: true,
-                similar: true,
-              },
             });
 
             console.log('similarClient: ', similarClient);
             if (similarClient && similarClient.lastIdentified) {
               if (similarClient.lastIdentified > minuteAgo) {
-                // const oldSimilars = similarClient.
                 // await this.clientService.update(similarClient.id, {
                 //   ...similarClient,
                 // });
@@ -99,8 +83,8 @@ export class RecognizerService {
                 });
               }
             } else {
-              await this.clientService.update(candidate.id, {
-                ...candidate,
+              await this.clientService.update(similarClient.id, {
+                ...similarClient,
                 lastIdentified: new Date(),
               });
             }
