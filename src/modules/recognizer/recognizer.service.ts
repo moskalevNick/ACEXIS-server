@@ -58,44 +58,6 @@ export class RecognizerService {
               },
             });
 
-            const minuteAgo = new Date(
-              new Date().setHours(new Date().getMinutes() - 1),
-            );
-
-            const similarClient = await this.prisma.client.findFirst({
-              where: {
-                lastIdentified: {
-                  isSet: true,
-                },
-              },
-            });
-
-            if (similarClient && !candidate) {
-              console.log('similarClient: ', similarClient.face_id);
-
-              if (similarClient.lastIdentified) {
-                if (similarClient.lastIdentified > minuteAgo) {
-                  console.log('update similars!!!!!!!!!!!!');
-
-                  // await this.clientService.update(similarClient.id, {
-                  //   ...similarClient,
-                  // });
-                } else {
-                  console.log('lastIdentified undefined??????????????');
-                  await this.clientService.update(candidate.id, {
-                    ...candidate,
-                    lastIdentified: undefined,
-                  });
-                }
-              } else {
-                console.log('update lastIdentified!!!!!!!!!!!!');
-                await this.clientService.update(similarClient.id, {
-                  ...similarClient,
-                  lastIdentified: new Date(),
-                });
-              }
-            }
-
             if (candidate) {
               console.log('candidate: ', candidate.face_id);
               if (candidate.status === 'wheel') {
@@ -130,28 +92,70 @@ export class RecognizerService {
                 return;
               }
             } else {
-              const newClient = await this.clientService.create(
-                {
-                  face_id: [face.face_id],
-                },
-                recognizer.userId,
+              const minuteAgo = new Date(
+                new Date().setHours(new Date().getMinutes() - 1),
               );
 
-              const clientImage: Express.Multer.File = {
-                fieldname: '',
-                originalname: `recognizer_image___`,
-                encoding: '',
-                mimetype: '',
-                size: face.frame_content.length,
-                destination: '',
-                filename: '',
-                path: '',
-                buffer: Buffer.from(face.frame_content, 'base64'),
-                stream: face.frame_content,
-              };
+              const clientWithLastIdentified =
+                await this.prisma.client.findFirst({
+                  where: {
+                    lastIdentified: {
+                      isSet: true,
+                    },
+                  },
+                });
 
-              await this.clientService.uploadImage(newClient.id, clientImage);
-              await this.visitService.create({}, newClient.id);
+              if (clientWithLastIdentified) {
+                console.log(
+                  'clientWithLastIdentified: ',
+                  clientWithLastIdentified.face_id,
+                );
+
+                if (clientWithLastIdentified.lastIdentified) {
+                  if (clientWithLastIdentified.lastIdentified > minuteAgo) {
+                    console.log('update similars!!!!!!!!!!!!');
+
+                    // await this.clientService.update(similarClient.id, {
+                    //   ...similarClient,
+                    // });
+                  } else {
+                    console.log('lastIdentified undefined??????????????');
+                    await this.clientService.update(candidate.id, {
+                      ...candidate,
+                      lastIdentified: undefined,
+                    });
+                  }
+                } else {
+                  console.log('update lastIdentified!!!!!!!!!!!!');
+                  await this.clientService.update(clientWithLastIdentified.id, {
+                    ...clientWithLastIdentified,
+                    lastIdentified: new Date(),
+                  });
+                }
+              } else {
+                const newClient = await this.clientService.create(
+                  {
+                    face_id: [face.face_id],
+                  },
+                  recognizer.userId,
+                );
+
+                const clientImage: Express.Multer.File = {
+                  fieldname: '',
+                  originalname: `recognizer_image___`,
+                  encoding: '',
+                  mimetype: '',
+                  size: face.frame_content.length,
+                  destination: '',
+                  filename: '',
+                  path: '',
+                  buffer: Buffer.from(face.frame_content, 'base64'),
+                  stream: face.frame_content,
+                };
+
+                await this.clientService.uploadImage(newClient.id, clientImage);
+                await this.visitService.create({}, newClient.id);
+              }
             }
           } else return;
         });
