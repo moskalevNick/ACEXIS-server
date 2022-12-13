@@ -71,22 +71,26 @@ export class RecognizerService {
             });
 
             console.log('similarClient: ', similarClient);
-            if (similarClient && similarClient.lastIdentified) {
-              if (similarClient.lastIdentified > minuteAgo) {
-                // await this.clientService.update(similarClient.id, {
-                //   ...similarClient,
-                // });
+            console.log('candidate: ', candidate);
+
+            if (similarClient && !candidate) {
+              if (similarClient.lastIdentified) {
+                if (similarClient.lastIdentified > minuteAgo) {
+                  // await this.clientService.update(similarClient.id, {
+                  //   ...similarClient,
+                  // });
+                } else {
+                  await this.clientService.update(candidate.id, {
+                    ...candidate,
+                    lastIdentified: undefined,
+                  });
+                }
               } else {
-                await this.clientService.update(candidate.id, {
-                  ...candidate,
-                  lastIdentified: undefined,
+                await this.clientService.update(similarClient.id, {
+                  ...similarClient,
+                  lastIdentified: new Date(),
                 });
               }
-            } else {
-              await this.clientService.update(similarClient.id, {
-                ...similarClient,
-                lastIdentified: new Date(),
-              });
             }
 
             if (candidate) {
