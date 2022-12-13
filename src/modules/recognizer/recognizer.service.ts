@@ -64,9 +64,10 @@ export class RecognizerService {
                 console.log('wheel status');
                 return;
               }
-
+              const candidateUpdateDto = candidate;
+              delete candidateUpdateDto.id;
               await this.clientService.update(candidate.id, {
-                ...candidate,
+                ...candidateUpdateDto,
                 lastIdentified: new Date(),
               });
 
