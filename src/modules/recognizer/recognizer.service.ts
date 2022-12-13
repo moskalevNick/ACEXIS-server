@@ -85,17 +85,23 @@ export class RecognizerService {
               },
             });
 
-            console.log(similarClient);
-
-            if (similarClient.lastIdentified > minuteAgo) {
-              // const oldSimilars = similarClient.
-              // await this.clientService.update(similarClient.id, {
-              //   ...similarClient,
-              // });
+            console.log('similarClient: ', similarClient);
+            if (similarClient.lastIdentified) {
+              if (similarClient.lastIdentified > minuteAgo) {
+                // const oldSimilars = similarClient.
+                // await this.clientService.update(similarClient.id, {
+                //   ...similarClient,
+                // });
+              } else {
+                await this.clientService.update(candidate.id, {
+                  ...candidate,
+                  lastIdentified: undefined,
+                });
+              }
             } else {
               await this.clientService.update(candidate.id, {
                 ...candidate,
-                lastIdentified: undefined,
+                lastIdentified: new Date(),
               });
             }
 
