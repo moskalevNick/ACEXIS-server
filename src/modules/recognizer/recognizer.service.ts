@@ -70,11 +70,9 @@ export class RecognizerService {
               },
             });
 
-            similarClient.face_id &&
-              console.log('similarClient: ', similarClient.face_id);
-            candidate.face_id && console.log('candidate: ', candidate.face_id);
-
             if (similarClient && !candidate) {
+              console.log('similarClient: ', similarClient.face_id);
+
               if (similarClient.lastIdentified) {
                 if (similarClient.lastIdentified > minuteAgo) {
                   console.log('update similars!!!!!!!!!!!!');
@@ -99,6 +97,7 @@ export class RecognizerService {
             }
 
             if (candidate) {
+              console.log('candidate: ', candidate.face_id);
               if (candidate.status === 'wheel') {
                 console.log('wheel status');
                 return;
