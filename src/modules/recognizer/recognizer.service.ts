@@ -82,12 +82,14 @@ export class RecognizerService {
                   //   ...similarClient,
                   // });
                 } else {
+                  console.log('lastIdentified undefined??????????????');
                   await this.clientService.update(candidate.id, {
                     ...candidate,
                     lastIdentified: undefined,
                   });
                 }
               } else {
+                console.log('update lastIdentified!!!!!!!!!!!!');
                 await this.clientService.update(similarClient.id, {
                   ...similarClient,
                   lastIdentified: new Date(),
