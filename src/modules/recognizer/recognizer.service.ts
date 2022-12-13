@@ -70,8 +70,9 @@ export class RecognizerService {
               },
             });
 
-            console.log('similarClient: ', similarClient.face_id);
-            console.log('candidate: ', candidate.face_id);
+            similarClient.face_id &&
+              console.log('similarClient: ', similarClient.face_id);
+            candidate.face_id && console.log('candidate: ', candidate.face_id);
 
             if (similarClient && !candidate) {
               if (similarClient.lastIdentified) {
