@@ -46,7 +46,7 @@ export class RecognizerService {
           device_id: checkClientDto.device_id,
         },
       });
-      // console.log('in face mode: ', checkClientDto);
+
       if (checkClientDto.faces.length) {
         await checkClientDto.faces.forEach(async (face: any) => {
           if (face.accuracy >= 85) {
@@ -70,12 +70,14 @@ export class RecognizerService {
               },
             });
 
-            console.log('similarClient: ', similarClient);
-            console.log('candidate: ', candidate);
+            console.log('similarClient: ', similarClient.face_id);
+            console.log('candidate: ', candidate.face_id);
 
             if (similarClient && !candidate) {
               if (similarClient.lastIdentified) {
                 if (similarClient.lastIdentified > minuteAgo) {
+                  console.log('update similars!!!!!!!!!!!!');
+
                   // await this.clientService.update(similarClient.id, {
                   //   ...similarClient,
                   // });
@@ -126,16 +128,12 @@ export class RecognizerService {
                 return;
               }
             } else {
-              console.log('in else: ', face);
-
               const newClient = await this.clientService.create(
                 {
                   face_id: [face.face_id],
                 },
                 recognizer.userId,
               );
-
-              console.log('newClient: ', newClient);
 
               const clientImage: Express.Multer.File = {
                 fieldname: '',
