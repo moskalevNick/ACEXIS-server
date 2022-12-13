@@ -41,12 +41,6 @@ export class RecognizerService {
 
   async check(checkClientDto: any): Promise<any> {
     if (checkClientDto.mode === 'face_event') {
-      const recognizer = await this.prisma.recognizer.findUnique({
-        where: {
-          device_id: checkClientDto.device_id,
-        },
-      });
-
       if (checkClientDto.faces.length) {
         await checkClientDto.faces.forEach(async (face: any) => {
           if (face.accuracy >= 85) {
@@ -59,7 +53,7 @@ export class RecognizerService {
             });
 
             if (candidate) {
-              console.log('candidate: ', candidate);
+              console.log('candidate');
               if (candidate.status === 'wheel') {
                 console.log('wheel status');
                 return;
@@ -126,13 +120,13 @@ export class RecognizerService {
                     // });
                   } else {
                     console.log('lastIdentified undefined??????????????');
-                    // await this.clientService.update(
-                    //   clientWithLastIdentified.id,
-                    //   {
-                    //     ...clientUpdateDto,
-                    //     lastIdentified: undefined,
-                    //   },
-                    // );
+                    await this.clientService.update(
+                      clientWithLastIdentified.id,
+                      {
+                        ...clientUpdateDto,
+                        lastIdentified: undefined,
+                      },
+                    );
                   }
                 } else {
                   console.log('update lastIdentified!!!!!!!!!!!!');
@@ -143,6 +137,12 @@ export class RecognizerService {
                 }
               } else {
                 console.log('new client: ', face.face_id);
+
+                const recognizer = await this.prisma.recognizer.findUnique({
+                  where: {
+                    device_id: checkClientDto.device_id,
+                  },
+                });
 
                 // const newClient = await this.clientService.create(
                 //   {
