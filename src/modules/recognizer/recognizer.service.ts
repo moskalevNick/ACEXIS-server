@@ -67,7 +67,10 @@ export class RecognizerService {
 
               const candidateUpdateDto = candidate;
               delete candidateUpdateDto.id;
-              console.log('!!!!!!!!!!!!!!!!!: ', candidateUpdateDto);
+              console.log('!!!!!!!!!!!!!!!!!: ', candidate.id, {
+                ...candidateUpdateDto,
+                lastIdentified: new Date(),
+              });
 
               await this.clientService.update(candidate.id, {
                 ...candidateUpdateDto,
