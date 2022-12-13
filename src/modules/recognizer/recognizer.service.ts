@@ -65,7 +65,7 @@ export class RecognizerService {
                 return;
               }
 
-              const candidateUpdateDto = candidate;
+              const candidateUpdateDto = { ...candidate };
               delete candidateUpdateDto.id;
               console.log('!!!!!!!!!!!!!!!!!: ', candidate.id, {
                 ...candidateUpdateDto,
