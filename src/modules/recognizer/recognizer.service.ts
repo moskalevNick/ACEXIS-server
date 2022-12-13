@@ -59,7 +59,7 @@ export class RecognizerService {
             });
 
             if (candidate) {
-              console.log('candidate: ', candidate.face_id);
+              console.log('candidate: ', candidate);
               if (candidate.status === 'wheel') {
                 console.log('wheel status');
                 return;
@@ -140,28 +140,28 @@ export class RecognizerService {
                   });
                 }
               } else {
-                const newClient = await this.clientService.create(
-                  {
-                    face_id: [face.face_id],
-                  },
-                  recognizer.userId,
-                );
+                console.log('new client: ', face.face_id);
 
-                const clientImage: Express.Multer.File = {
-                  fieldname: '',
-                  originalname: `recognizer_image___`,
-                  encoding: '',
-                  mimetype: '',
-                  size: face.frame_content.length,
-                  destination: '',
-                  filename: '',
-                  path: '',
-                  buffer: Buffer.from(face.frame_content, 'base64'),
-                  stream: face.frame_content,
-                };
-
-                await this.clientService.uploadImage(newClient.id, clientImage);
-                await this.visitService.create({}, newClient.id);
+                // const newClient = await this.clientService.create(
+                //   {
+                //     face_id: [face.face_id],
+                //   },
+                //   recognizer.userId,
+                // );
+                // const clientImage: Express.Multer.File = {
+                //   fieldname: '',
+                //   originalname: `recognizer_image___`,
+                //   encoding: '',
+                //   mimetype: '',
+                //   size: face.frame_content.length,
+                //   destination: '',
+                //   filename: '',
+                //   path: '',
+                //   buffer: Buffer.from(face.frame_content, 'base64'),
+                //   stream: face.frame_content,
+                // };
+                // await this.clientService.uploadImage(newClient.id, clientImage);
+                // await this.visitService.create({}, newClient.id);
               }
             }
           } else return;
