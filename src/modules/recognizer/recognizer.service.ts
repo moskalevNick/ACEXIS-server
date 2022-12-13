@@ -111,6 +111,9 @@ export class RecognizerService {
                   clientWithLastIdentified.face_id,
                 );
 
+                const clientUpdateDto = clientWithLastIdentified;
+                delete clientUpdateDto.id;
+
                 if (clientWithLastIdentified.lastIdentified) {
                   if (clientWithLastIdentified.lastIdentified > minuteAgo) {
                     console.log('update similars!!!!!!!!!!!!');
@@ -120,15 +123,18 @@ export class RecognizerService {
                     // });
                   } else {
                     console.log('lastIdentified undefined??????????????');
-                    await this.clientService.update(candidate.id, {
-                      ...candidate,
-                      lastIdentified: undefined,
-                    });
+                    await this.clientService.update(
+                      clientWithLastIdentified.id,
+                      {
+                        ...clientUpdateDto,
+                        lastIdentified: undefined,
+                      },
+                    );
                   }
                 } else {
                   console.log('update lastIdentified!!!!!!!!!!!!');
                   await this.clientService.update(clientWithLastIdentified.id, {
-                    ...clientWithLastIdentified,
+                    ...clientUpdateDto,
                     lastIdentified: new Date(),
                   });
                 }
