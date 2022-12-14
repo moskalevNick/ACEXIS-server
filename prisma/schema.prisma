@@ -68,9 +68,10 @@ model Image {
 }
 
 model Similar {
-  id      String        @id @default(auto()) @map("_id") @db.ObjectId
-  face_id String        @db.String
-  image   SimilarImage?
+  id          String        @id @default(auto()) @map("_id") @db.ObjectId
+  face_id     String        @db.String
+  base64image String?
+  image       SimilarImage?
 
   client   Client @relation(fields: [clientId], references: [id])
   clientId String @db.ObjectId

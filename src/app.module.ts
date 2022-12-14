@@ -8,6 +8,7 @@ import { UsersModule } from './modules/users/users.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { PrismaModule } from './modules/prisma/prisma.module';
 import { VisitModule } from './modules/visits/visit.module';
+import { SimilarModule } from './modules/similar/similar.module';
 
 @Module({
   imports: [
@@ -20,6 +21,7 @@ import { VisitModule } from './modules/visits/visit.module';
     UsersModule,
     AuthModule,
     RecognizerModule,
+    SimilarModule,
   ],
 })
 export class AppModule {}

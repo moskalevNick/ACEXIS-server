@@ -101,7 +101,15 @@ export class ClientService {
         exises: true,
         face_id: true,
         lastIdentified: true,
-        similar: true,
+        similar: {
+          select: {
+            id: true,
+            face_id: true,
+            base64image: true,
+            clientId: true,
+            image: true,
+          },
+        },
       },
     });
 
