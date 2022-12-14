@@ -152,18 +152,27 @@ export class RecognizerService {
 
                     if (clientWithLastIdentified.lastIdentified) {
                       if (clientWithLastIdentified.lastIdentified > minuteAgo) {
-                        console.log('update similars');
-                        const faceDto = {
-                          ...face,
-                          base64image: face.frame_content,
-                        };
-                        delete faceDto.frame_content;
-                        delete faceDto.accuracy;
-
-                        await this.similarService.create(
-                          faceDto,
-                          clientWithLastIdentified.id,
+                        const similars =
+                          await this.similarService.getSimilarsByClientId(
+                            clientWithLastIdentified.id,
+                          );
+                        const oldSimilar = similars.find(
+                          (el) => el.face_id === face.face_id,
                         );
+                        if (!oldSimilar) {
+                          console.log('update similars');
+                          const faceDto = {
+                            ...face,
+                            base64image: face.frame_content,
+                          };
+                          delete faceDto.frame_content;
+                          delete faceDto.accuracy;
+
+                          await this.similarService.create(
+                            faceDto,
+                            clientWithLastIdentified.id,
+                          );
+                        }
                       } else {
                         console.log('update last Ident');
 
@@ -175,15 +184,15 @@ export class RecognizerService {
                           },
                         );
                       }
-                      console.log('reset last Ident');
+                      // console.log('reset last Ident');
 
-                      await this.clientService.update(
-                        clientWithLastIdentified.id,
-                        {
-                          ...clientUpdateDto,
-                          lastIdentified: null,
-                        },
-                      );
+                      // await this.clientService.update(
+                      //   clientWithLastIdentified.id,
+                      //   {
+                      //     ...clientUpdateDto,
+                      //     lastIdentified: null,
+                      //   },
+                      // );
                     }
                   },
                 );
