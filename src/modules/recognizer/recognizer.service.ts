@@ -113,6 +113,8 @@ export class RecognizerService {
               });
 
               if (!lastVisit || lastVisit.date < threeHoursAgo) {
+                console.log('update last visit');
+
                 await this.visitService.create({}, candidate.id);
               } else {
                 return;
@@ -184,15 +186,6 @@ export class RecognizerService {
                           },
                         );
                       }
-                      // console.log('reset last Ident');
-
-                      // await this.clientService.update(
-                      //   clientWithLastIdentified.id,
-                      //   {
-                      //     ...clientUpdateDto,
-                      //     lastIdentified: null,
-                      //   },
-                      // );
                     }
                   },
                 );
