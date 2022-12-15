@@ -176,13 +176,13 @@ export class RecognizerService {
                           );
                         }
                       } else {
-                        console.log('update last Ident');
+                        console.log('reset last Ident');
 
                         await this.clientService.update(
                           clientWithLastIdentified.id,
                           {
                             ...clientUpdateDto,
-                            lastIdentified: new Date(),
+                            lastIdentified: null,
                           },
                         );
                       }
