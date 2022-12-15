@@ -19,6 +19,7 @@ model User {
   avatar       userAvatar?
   isRus        Boolean      @default(false)
   isDark       Boolean      @default(false)
+  cameraToken  String?      @db.String
   clients      Client[]
   Recognizer   Recognizer[]
 

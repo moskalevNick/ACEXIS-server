@@ -49,6 +49,7 @@ export class UsersService {
         isDark: true,
         avatar: true,
         role: true,
+        cameraToken: true,
       },
     });
   }
@@ -68,6 +69,7 @@ export class UsersService {
         isDark: true,
         avatar: true,
         role: true,
+        cameraToken: true,
       },
     });
   }
