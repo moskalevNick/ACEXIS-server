@@ -201,6 +201,7 @@ export class RecognizerService {
                 const newClient = await this.clientService.create(
                   {
                     face_id: [face.face_id],
+                    lastIdentified: new Date(),
                   },
                   recognizer.userId,
                 );
