@@ -44,6 +44,7 @@ export class ExisService {
     const data: Prisma.ExisUncheckedCreateInput = {
       ...exisDto,
       clientId,
+      visitId: lastVisit ? lastVisit.id : null,
     };
 
     const createdExis = await this.prisma.exis.create({ data });
@@ -58,8 +59,26 @@ export class ExisService {
   }
 
   async delete(id: Exis['id']): Promise<Exis> {
+    const exis = await this.prisma.exis.findUnique({
+      where: {
+        id,
+      },
+    });
+
+    if (exis.visitId) {
+      this.visitService.delete(exis.visitId);
+    }
+
     return this.prisma.exis.delete({
       where: { id },
+      select: {
+        id: true,
+        date: true,
+        text: true,
+        isPinned: true,
+        clientId: true,
+        visitId: true,
+      },
     });
   }
 

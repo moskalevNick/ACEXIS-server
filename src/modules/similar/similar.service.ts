@@ -73,7 +73,7 @@ export class SimilarService {
     });
   }
 
-  async remove(id: Similar['id']): Promise<Similar> {
+  async delete(id: Similar['id']): Promise<Similar> {
     const currentSimilar = await this.prisma.similar.findFirst({
       where: { id },
       select: {

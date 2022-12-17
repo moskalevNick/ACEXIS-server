@@ -36,7 +36,7 @@ export class SimilarController {
   }
 
   @Delete('/:id')
-  remove(@Param('id') id: string): Promise<Similar> {
-    return this.similarService.remove(id);
+  delete(@Param('id') id: string): Promise<Similar> {
+    return this.similarService.delete(id);
   }
 }

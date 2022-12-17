@@ -51,4 +51,12 @@ export class VisitService {
 
     return newVisit;
   }
+
+  async delete(visitId: Visit['id']) {
+    return this.prisma.visit.delete({
+      where: {
+        id: visitId,
+      },
+    });
+  }
 }

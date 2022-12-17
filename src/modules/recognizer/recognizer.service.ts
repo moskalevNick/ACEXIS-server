@@ -161,7 +161,7 @@ export class RecognizerService {
                         const oldSimilar = similars.find(
                           (el) => el.face_id === face.face_id,
                         );
-                        if (!oldSimilar) {
+                        if (!oldSimilar && similars.length < 5) {
                           console.log('update similars');
                           const faceDto = {
                             ...face,

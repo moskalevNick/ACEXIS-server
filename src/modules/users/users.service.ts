@@ -108,7 +108,7 @@ export class UsersService {
     });
   }
 
-  // async remove(id: string): Promise<UserDocument> {
+  // async delete(id: string): Promise<UserDocument> {
   //   return this.userModel.findByIdAndDelete(id).exec();
   // }
 }

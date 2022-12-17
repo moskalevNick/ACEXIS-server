@@ -1,3 +1,4 @@
+import { SimilarService } from './../similar/similar.service';
 import { clientFilterDto } from './dto/clientFilter.dto';
 import { Injectable } from '@nestjs/common';
 import { Prisma, Client, User, Image, Visit } from '@prisma/client';
@@ -5,11 +6,16 @@ import { Prisma, Client, User, Image, Visit } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { ImageService } from '../image/image.service';
 import { FirebaseStorageProvider } from 'src/providers/firebase-storage.provider';
+import { VisitService } from '../visits/visit.service';
+import { ExisService } from '../exis/exis.service';
 
 @Injectable()
 export class ClientService {
   constructor(
     private storageProvider: FirebaseStorageProvider,
+    private visitService: VisitService,
+    private similarService: SimilarService,
+    private exisService: ExisService,
     private imageService: ImageService,
     private prisma: PrismaService,
   ) {}
@@ -46,6 +52,11 @@ export class ClientService {
     const { searchString, dateFrom, dateTo, billFrom, billTo, status } =
       filterDto;
     const clients = await this.prisma.client.findMany({
+      orderBy: {
+        visits: {
+          _count: 'desc',
+        },
+      },
       where: {
         AND: [
           {
@@ -54,11 +65,18 @@ export class ClientService {
               in: status,
             },
             visits: {
-              some: {
-                date: {
-                  gte: dateFrom,
-                  lte: dateTo,
-                },
+              every: {
+                AND: [
+                  {
+                    date: {
+                      gte: dateFrom,
+                      lte: dateTo,
+                    },
+                  },
+                  {
+                    OR: [],
+                  },
+                ],
               },
             },
             averageBill: {
@@ -116,7 +134,16 @@ export class ClientService {
     return clients;
   }
 
-  async getbyId(id: Client['id']): Promise<any> {
+  async getbyId(id: Client['id']): Promise<
+    Prisma.ClientGetPayload<{
+      include: {
+        images: true;
+        visits: true;
+        exises: true;
+        similar: true;
+      };
+    }>
+  > {
     const client = await this.prisma.client.findUnique({
       where: { id },
       select: {
@@ -129,9 +156,21 @@ export class ClientService {
         userId: true,
         images: true,
         visits: true,
-        similar: true,
+        exises: true,
+        face_id: true,
+        lastIdentified: true,
+        similar: {
+          select: {
+            id: true,
+            face_id: true,
+            base64image: true,
+            clientId: true,
+            image: true,
+          },
+        },
       },
     });
+
     return client;
   }
 
@@ -168,7 +207,32 @@ export class ClientService {
     return newClient;
   }
 
-  async remove(id: Client['id']): Promise<Client> {
+  async delete(id: Client['id']): Promise<Client> {
+    const client = await this.getbyId(id);
+    if (client.images.length) {
+      client.images.forEach((image) => {
+        this.deleteImage(image.id);
+      });
+    }
+
+    if (client.visits.length) {
+      client.visits.forEach((visit) => {
+        this.visitService.delete(visit.id);
+      });
+    }
+
+    if (client.exises.length) {
+      client.exises.forEach((exis) => {
+        this.exisService.delete(exis.id);
+      });
+    }
+
+    if (client.similar.length) {
+      client.similar.forEach((similar) => {
+        this.similarService.delete(similar.id);
+      });
+    }
+
     return this.prisma.client.delete({
       where: { id },
       select: {

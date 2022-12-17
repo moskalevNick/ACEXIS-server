@@ -73,8 +73,8 @@ export class ClientController {
 
   @UseGuards(JwtAuthGuard)
   @Delete('/:id')
-  remove(@Param('id') id: string): Promise<Client> {
-    return this.clientService.remove(id);
+  delete(@Param('id') id: string): Promise<Client> {
+    return this.clientService.delete(id);
   }
 
   @UseGuards(JwtAuthGuard)
