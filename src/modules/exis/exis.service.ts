@@ -59,16 +59,6 @@ export class ExisService {
   }
 
   async delete(id: Exis['id']): Promise<Exis> {
-    const exis = await this.prisma.exis.findUnique({
-      where: {
-        id,
-      },
-    });
-
-    if (exis.visitId) {
-      this.visitService.delete(exis.visitId);
-    }
-
     return this.prisma.exis.delete({
       where: { id },
       select: {
