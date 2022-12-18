@@ -45,6 +45,7 @@ model Client {
   averageBill    Float?    @default(0) @db.Double
   billsAmount    Int       @default(0) @db.Int
   lastIdentified DateTime? @db.Date
+  lastVisitDate  DateTime? @db.Date
 
   images  Image[]
   exises  Exis[]

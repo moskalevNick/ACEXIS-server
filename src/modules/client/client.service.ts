@@ -39,6 +39,7 @@ export class ClientService {
         face_id: true,
         lastIdentified: true,
         similar: true,
+        lastVisitDate: true,
       },
     });
 
@@ -52,11 +53,6 @@ export class ClientService {
     const { searchString, dateFrom, dateTo, billFrom, billTo, status } =
       filterDto;
     const clients = await this.prisma.client.findMany({
-      orderBy: {
-        visits: {
-          _count: 'desc',
-        },
-      },
       where: {
         AND: [
           {
@@ -119,6 +115,7 @@ export class ClientService {
         exises: true,
         face_id: true,
         lastIdentified: true,
+        lastVisitDate: true,
         similar: {
           select: {
             id: true,
@@ -128,6 +125,9 @@ export class ClientService {
             image: true,
           },
         },
+      },
+      orderBy: {
+        lastVisitDate: 'desc',
       },
     });
 
@@ -159,6 +159,7 @@ export class ClientService {
         exises: true,
         face_id: true,
         lastIdentified: true,
+        lastVisitDate: true,
         similar: {
           select: {
             id: true,
@@ -201,6 +202,7 @@ export class ClientService {
         face_id: true,
         lastIdentified: true,
         similar: true,
+        lastVisitDate: true,
       },
     });
 
@@ -247,6 +249,7 @@ export class ClientService {
         face_id: true,
         lastIdentified: true,
         similar: true,
+        lastVisitDate: true,
       },
     });
   }

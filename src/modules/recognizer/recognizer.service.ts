@@ -114,8 +114,11 @@ export class RecognizerService {
 
               if (!lastVisit || lastVisit.date < threeHoursAgo) {
                 console.log('update last visit');
-
-                await this.visitService.create({}, candidate.id);
+                await this.clientService.update(candidate.id, {
+                  lastIdentified: new Date(),
+                  lastVisitDate: new Date(),
+                });
+                return this.visitService.create({}, candidate.id);
               } else {
                 return;
               }
@@ -202,6 +205,7 @@ export class RecognizerService {
                   {
                     face_id: [face.face_id],
                     lastIdentified: new Date(),
+                    lastVisitDate: new Date(),
                   },
                   recognizer.userId,
                 );
