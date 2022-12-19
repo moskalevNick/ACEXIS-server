@@ -265,6 +265,20 @@ export class ClientService {
       data: {
         ...clientDto,
       },
+      select: {
+        id: true,
+        name: true,
+        status: true,
+        phone: true,
+        averageBill: true,
+        billsAmount: true,
+        userId: true,
+        images: true,
+        face_id: true,
+        lastIdentified: true,
+        similar: true,
+        lastVisitDate: true,
+      },
     });
   }
 
