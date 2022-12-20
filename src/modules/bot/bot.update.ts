@@ -7,6 +7,8 @@ export class BotUpdate {
 
   @Start()
   async startCommand(ctx: Context) {
+    const chat = await ctx.getChat();
+
     const hello: String =
       ctx.message.from.language_code === 'ru' ? 'Привет' : 'Hello';
     const getChatId: String =
@@ -14,7 +16,8 @@ export class BotUpdate {
         ? 'Получить ID чата 🕹️'
         : 'Get chat ID 🕹️';
 
-    await ctx.reply(
+    await this.bot.telegram.sendMessage(
+      chat.id,
       `${hello}, ${ctx.message.from.first_name} 👋`,
       Markup.inlineKeyboard([
         Markup.button.callback(`${getChatId}`, 'getChatId'),
