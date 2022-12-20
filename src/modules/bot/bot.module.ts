@@ -5,8 +5,10 @@ import { BotUpdate } from './bot.update';
 
 @Module({
   imports: [
-    TelegrafModule.forRoot({
-      token: process.env.BOT_TOKEN,
+    TelegrafModule.forRootAsync({
+      useFactory: () => ({
+        token: process.env.BOT_TOKEN,
+      }),
     }),
     RecognizerModule,
   ],
