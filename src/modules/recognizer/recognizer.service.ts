@@ -1,19 +1,12 @@
-import { SimilarService } from './../similar/similar.service';
-import { firstValueFrom } from 'rxjs';
 import { Injectable } from '@nestjs/common';
-import {
-  Client,
-  Prisma,
-  Recognizer,
-  Similar,
-  User,
-  Visit,
-} from '@prisma/client';
+import { Prisma, Recognizer, User, Visit } from '@prisma/client';
 
+import { SimilarService } from './../similar/similar.service';
 import { ClientService } from './../client/client.service';
 import { VisitService } from './../visits/visit.service';
 import { PrismaService } from '../prisma/prisma.service';
-import { Readable } from 'stream';
+import { BotUpdate } from '../bot/bot.update';
+import { UsersService } from '../users/users.service';
 
 type FaceType = {
   face_id: string;
@@ -37,6 +30,8 @@ export class RecognizerService {
     private visitService: VisitService,
     private clientService: ClientService,
     private similarService: SimilarService,
+    private botUpdate: BotUpdate,
+    private userService: UsersService,
   ) {}
 
   async create(
@@ -70,6 +65,12 @@ export class RecognizerService {
       const minuteAgo = new Date(Number(new Date()) - 60 * 1000);
 
       if (checkClientDto.faces.length) {
+        const recognizer = await this.prisma.recognizer.findUnique({
+          where: {
+            device_id: checkClientDto.device_id,
+          },
+        });
+
         checkClientDto.faces.forEach(async (face) => {
           if (face.accuracy >= 85) {
             const candidate = await this.prisma.client.findFirst({
@@ -118,6 +119,22 @@ export class RecognizerService {
                   lastIdentified: new Date(),
                   lastVisitDate: new Date(),
                 });
+
+                if (candidate.status !== 'ghost') {
+                  const { chatId, isRus } = await this.userService.findById(
+                    recognizer.userId,
+                  );
+
+                  const wasRecognizedNow: string = isRus
+                    ? 'был опознан 👁️'
+                    : 'was recognized now 👁️';
+
+                  await this.botUpdate.sendMessage(
+                    chatId,
+                    `${candidate.name} ${wasRecognizedNow}`,
+                  );
+                }
+
                 return this.visitService.create({}, candidate.id);
               } else {
                 return;
@@ -194,12 +211,6 @@ export class RecognizerService {
                 );
               } else {
                 console.log('new client: ', face.face_id);
-
-                const recognizer = await this.prisma.recognizer.findUnique({
-                  where: {
-                    device_id: checkClientDto.device_id,
-                  },
-                });
 
                 const newClient = await this.clientService.create(
                   {

@@ -1,4 +1,4 @@
-import { Body, Controller, Param, Post, UseGuards, Req } from '@nestjs/common';
+import { Body, Controller, Post, UseGuards, Req } from '@nestjs/common';
 import { User } from '@prisma/client';
 
 import { JwtRefreshGuard } from '../../commons/guards/refreshToken.guard';

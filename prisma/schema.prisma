@@ -15,7 +15,7 @@ model User {
   role         String       @default("user")
   minBill      Float        @default(0) @db.Double
   maxBill      Float        @default(1500) @db.Double
-  linkBot      String?      @db.String
+  chatId       String?      @db.String
   avatar       userAvatar?
   isRus        Boolean      @default(false)
   isDark       Boolean      @default(false)

@@ -211,29 +211,11 @@ export class ClientService {
 
   async delete(id: Client['id']): Promise<Client> {
     const client = await this.getbyId(id);
-    if (client.images.length) {
-      client.images.forEach((image) => {
-        this.deleteImage(image.id);
-      });
-    }
 
-    if (client.visits.length) {
-      client.visits.forEach((visit) => {
-        this.visitService.delete(visit.id);
-      });
-    }
-
-    if (client.exises.length) {
-      client.exises.forEach((exis) => {
-        this.exisService.delete(exis.id);
-      });
-    }
-
-    if (client.similar.length) {
-      client.similar.forEach((similar) => {
-        this.similarService.delete(similar.id);
-      });
-    }
+    await this.prisma.image.deleteMany({ where: { clientId: id } });
+    await this.prisma.exis.deleteMany({ where: { clientId: id } });
+    await this.prisma.visit.deleteMany({ where: { clientId: id } });
+    await this.prisma.similar.deleteMany({ where: { clientId: id } });
 
     return this.prisma.client.delete({
       where: { id },
@@ -245,7 +227,6 @@ export class ClientService {
         averageBill: true,
         billsAmount: true,
         userId: true,
-        images: true,
         face_id: true,
         lastIdentified: true,
         similar: true,

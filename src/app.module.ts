@@ -1,6 +1,7 @@
-import { RecognizerModule } from './modules/recognizer/recognizer.module';
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
+import { BotModule } from './modules/bot/bot.module';
+import { RecognizerModule } from './modules/recognizer/recognizer.module';
 import { ClientModule } from './modules/client/client.module';
 import { ExisModule } from './modules/exis/exis.module';
 import { ImageModule } from './modules/image/image.module';
@@ -12,7 +13,9 @@ import { SimilarModule } from './modules/similar/similar.module';
 
 @Module({
   imports: [
-    ConfigModule.forRoot(),
+    ConfigModule.forRoot({
+      envFilePath: ['.env'],
+    }),
     PrismaModule,
     ClientModule,
     ExisModule,
@@ -22,6 +25,7 @@ import { SimilarModule } from './modules/similar/similar.module';
     AuthModule,
     RecognizerModule,
     SimilarModule,
+    BotModule,
   ],
 })
 export class AppModule {}
