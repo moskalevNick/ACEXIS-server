@@ -5,7 +5,7 @@ import { SimilarService } from './../similar/similar.service';
 import { ClientService } from './../client/client.service';
 import { VisitService } from './../visits/visit.service';
 import { PrismaService } from '../prisma/prisma.service';
-// import { BotUpdate } from '../bot/bot.update';
+import { BotUpdate } from '../bot/bot.update';
 import { UsersService } from '../users/users.service';
 
 type FaceType = {
@@ -30,7 +30,7 @@ export class RecognizerService {
     private visitService: VisitService,
     private clientService: ClientService,
     private similarService: SimilarService,
-    // private botUpdate: BotUpdate,
+    private botUpdate: BotUpdate,
     private userService: UsersService,
   ) {}
 
@@ -120,20 +120,20 @@ export class RecognizerService {
                   lastVisitDate: new Date(),
                 });
 
-                // if (candidate.status !== 'ghost') {
-                //   const { chatId, isRus } = await this.userService.findById(
-                //     recognizer.userId,
-                //   );
+                if (candidate.status !== 'ghost') {
+                  const { chatId, isRus } = await this.userService.findById(
+                    recognizer.userId,
+                  );
 
-                //   const wasRecognizedNow: string = isRus
-                //     ? 'был распознан 👁️'
-                //     : 'was recognized now 👁️';
+                  const wasRecognizedNow: string = isRus
+                    ? 'был распознан 👁️'
+                    : 'was recognized now 👁️';
 
-                //   await this.botUpdate.sendMessage(
-                //     chatId,
-                //     `${candidate.name} ${wasRecognizedNow}`,
-                //   );
-                // }
+                  await this.botUpdate.sendMessage(
+                    chatId,
+                    `${candidate.name} ${wasRecognizedNow}`,
+                  );
+                }
 
                 return this.visitService.create({}, candidate.id);
               } else {

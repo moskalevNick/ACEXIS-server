@@ -23,7 +23,8 @@ import { SimilarModule } from './modules/similar/similar.module';
     AuthModule,
     RecognizerModule,
     SimilarModule,
-    // BotModule,
+    BotModule,
   ],
+  providers: [BotModule],
 })
 export class AppModule {}

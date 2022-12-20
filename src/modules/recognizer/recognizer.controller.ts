@@ -1,16 +1,5 @@
-import {
-  Body,
-  Controller,
-  Get,
-  Header,
-  HttpCode,
-  HttpStatus,
-  Param,
-  Post,
-  Req,
-  UseGuards,
-} from '@nestjs/common';
-import { Client, Prisma } from '@prisma/client';
+import { Body, Controller, Header, Post, Req, UseGuards } from '@nestjs/common';
+import { Prisma } from '@prisma/client';
 import { JwtAuthGuard } from 'src/commons/guards/accessToken.guard';
 import { RecognizerService } from './recognizer.service';
 

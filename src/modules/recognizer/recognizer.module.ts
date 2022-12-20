@@ -6,7 +6,7 @@ import { RecognizerService } from './recognizer.service';
 @Global()
 @Module({
   controllers: [RecognizerController],
-  providers: [RecognizerService],
+  providers: [RecognizerService, BotUpdate],
   exports: [RecognizerService],
 })
 export class RecognizerModule {}
