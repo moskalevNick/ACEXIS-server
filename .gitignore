@@ -5,7 +5,7 @@
 serviceAccountKey.json
 npm-debug.log
 .DS_Store
-/*.env
+/*.env.*
 
 # Logs
 logs
