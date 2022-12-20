@@ -10,6 +10,6 @@ import { BotUpdate } from './bot.update';
     }),
     RecognizerModule,
   ],
-  providers: [BotUpdate, RecognizerModule],
+  providers: [BotUpdate],
 })
 export class BotModule {}
