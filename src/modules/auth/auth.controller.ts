@@ -9,7 +9,9 @@ export class AuthController {
   constructor(private authService: AuthService) {}
 
   @Post('/registration')
-  registration(@Body() userDto: Pick<User, 'username' | 'password'>) {
+  registration(
+    @Body() userDto: Pick<User, 'username' | 'password' | 'cameraToken'>,
+  ) {
     return this.authService.registration(userDto);
   }
 

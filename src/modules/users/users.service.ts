@@ -13,7 +13,10 @@ export class UsersService {
   ) {}
 
   async create(
-    createUserDto: Pick<Prisma.UserCreateInput, 'username' | 'password'>,
+    createUserDto: Pick<
+      Prisma.UserCreateInput,
+      'username' | 'password' | 'cameraToken'
+    >,
   ): Promise<User> {
     const createdUser = await this.prisma.user.create({
       data: createUserDto,

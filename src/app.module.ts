@@ -13,9 +13,7 @@ import { SimilarModule } from './modules/similar/similar.module';
 
 @Module({
   imports: [
-    ConfigModule.forRoot({
-      envFilePath: ['.env'],
-    }),
+    ConfigModule.forRoot(),
     PrismaModule,
     ClientModule,
     ExisModule,

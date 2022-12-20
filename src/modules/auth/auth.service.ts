@@ -17,7 +17,8 @@ export class AuthService {
   async registration({
     username,
     password,
-  }: Pick<User, 'username' | 'password'>): Promise<User> {
+    cameraToken,
+  }: Pick<User, 'username' | 'password' | 'cameraToken'>): Promise<User> {
     const candidate = await this.userService.findByUsername(username);
 
     if (candidate) {
@@ -28,6 +29,7 @@ export class AuthService {
     const createdUser = await this.userService.create({
       username,
       password: hashedPassword,
+      cameraToken,
     });
 
     return createdUser;
