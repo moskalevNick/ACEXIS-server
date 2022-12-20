@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
-import { BotModule } from './modules/bot/bot.module';
+// import { BotModule } from './modules/bot/bot.module';
 import { RecognizerModule } from './modules/recognizer/recognizer.module';
 import { ClientModule } from './modules/client/client.module';
 import { ExisModule } from './modules/exis/exis.module';
@@ -23,8 +23,7 @@ import { SimilarModule } from './modules/similar/similar.module';
     AuthModule,
     RecognizerModule,
     SimilarModule,
-    BotModule,
+    // BotModule,
   ],
-  providers: [BotModule],
 })
 export class AppModule {}
