@@ -126,7 +126,7 @@ export class RecognizerService {
                   );
 
                   const wasRecognizedNow: string = isRus
-                    ? 'был опознан 👁️'
+                    ? 'был распознан 👁️'
                     : 'was recognized now 👁️';
 
                   await this.botUpdate.sendMessage(
