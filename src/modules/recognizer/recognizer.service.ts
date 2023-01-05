@@ -62,7 +62,7 @@ export class RecognizerService {
   async check(checkClientDto: RecognizerRequestType): Promise<string> {
     if (checkClientDto.mode === 'face_event') {
       const threeHoursAgo = new Date(Number(new Date()) - 3 * 60 * 60 * 1000);
-      const minuteAgo = new Date(Number(new Date()) - 60 * 1000);
+      const twentySecondsAgo = new Date(Number(new Date()) - 20 * 1000);
 
       if (checkClientDto.faces.length) {
         const recognizer = await this.prisma.recognizer.findUnique({
@@ -91,7 +91,7 @@ export class RecognizerService {
               const candidateUpdateDto = { ...candidate };
               delete candidateUpdateDto.id;
 
-              if (candidate.lastIdentified < minuteAgo) {
+              if (candidate.lastIdentified < twentySecondsAgo) {
                 console.log('update candidate last ident');
 
                 await this.clientService.update(candidate.id, {
@@ -173,7 +173,10 @@ export class RecognizerService {
                     delete clientUpdateDto.id;
 
                     if (clientWithLastIdentified.lastIdentified) {
-                      if (clientWithLastIdentified.lastIdentified > minuteAgo) {
+                      if (
+                        clientWithLastIdentified.lastIdentified >
+                        twentySecondsAgo
+                      ) {
                         const similars =
                           await this.similarService.getSimilarsByClientId(
                             clientWithLastIdentified.id,
