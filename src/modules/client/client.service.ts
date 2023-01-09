@@ -1,21 +1,15 @@
-import { SimilarService } from './../similar/similar.service';
-import { clientFilterDto } from './dto/clientFilter.dto';
 import { Injectable } from '@nestjs/common';
-import { Prisma, Client, User, Image, Visit } from '@prisma/client';
+import { Prisma, Client, User, Image } from '@prisma/client';
 
+import { clientFilterDto } from './dto/clientFilter.dto';
 import { PrismaService } from '../prisma/prisma.service';
 import { ImageService } from '../image/image.service';
 import { FirebaseStorageProvider } from 'src/providers/firebase-storage.provider';
-import { VisitService } from '../visits/visit.service';
-import { ExisService } from '../exis/exis.service';
 
 @Injectable()
 export class ClientService {
   constructor(
     private storageProvider: FirebaseStorageProvider,
-    private visitService: VisitService,
-    private similarService: SimilarService,
-    private exisService: ExisService,
     private imageService: ImageService,
     private prisma: PrismaService,
   ) {}
@@ -43,6 +37,12 @@ export class ClientService {
       },
     });
 
+    clients.forEach((client) => {
+      if (client.name === 'Unknown client' && client.face_id.length) {
+        client.name = client.name + ' ' + client.face_id[0].split('_')[1];
+      }
+    });
+
     return clients;
   }
 
@@ -61,7 +61,7 @@ export class ClientService {
               in: status,
             },
             visits: {
-              every: {
+              some: {
                 AND: [
                   {
                     date: {
@@ -131,6 +131,12 @@ export class ClientService {
       },
     });
 
+    clients.forEach((client) => {
+      if (client.name === 'Unknown client' && client.face_id.length) {
+        client.name = client.name + ' ' + client.face_id[0].split('_')[1];
+      }
+    });
+
     return clients;
   }
 
@@ -171,6 +177,10 @@ export class ClientService {
         },
       },
     });
+
+    if (client.name === 'Unknown client' && client.face_id.length) {
+      client.name = client.name + ' ' + client.face_id[0].split('_')[1];
+    }
 
     return client;
   }
