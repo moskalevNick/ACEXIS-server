@@ -52,6 +52,7 @@ export class ClientService {
   ): Promise<Client[]> {
     const { searchString, dateFrom, dateTo, billFrom, billTo, status } =
       filterDto;
+
     const clients = await this.prisma.client.findMany({
       where: {
         AND: [
@@ -62,17 +63,10 @@ export class ClientService {
             },
             visits: {
               some: {
-                AND: [
-                  {
-                    date: {
-                      gte: dateFrom,
-                      lte: dateTo,
-                    },
-                  },
-                  {
-                    OR: [],
-                  },
-                ],
+                date: {
+                  gte: dateFrom,
+                  lte: dateTo,
+                },
               },
             },
             averageBill: {
@@ -131,13 +125,52 @@ export class ClientService {
       },
     });
 
-    clients.forEach((client) => {
+    const clientsWithoutVisits = await this.prisma.client.findMany({
+      where: {
+        visits: {
+          every: {
+            OR: [],
+          },
+        },
+      },
+      select: {
+        id: true,
+        name: true,
+        status: true,
+        phone: true,
+        averageBill: true,
+        billsAmount: true,
+        userId: true,
+        images: true,
+        visits: true,
+        exises: true,
+        face_id: true,
+        lastIdentified: true,
+        lastVisitDate: true,
+        similar: {
+          select: {
+            id: true,
+            face_id: true,
+            base64image: true,
+            clientId: true,
+            image: true,
+          },
+        },
+      },
+      orderBy: {
+        lastVisitDate: 'desc',
+      },
+    });
+
+    const allClients = [...clients, ...clientsWithoutVisits];
+
+    allClients.forEach((client) => {
       if (client.name === 'Unknown client' && client.face_id.length) {
         client.name = client.name + ' ' + client.face_id[0].split('_')[1];
       }
     });
 
-    return clients;
+    return allClients;
   }
 
   async getbyId(id: Client['id']): Promise<
@@ -216,16 +249,23 @@ export class ClientService {
       },
     });
 
+    if (newClient.name === 'Unknown client' && newClient.face_id.length) {
+      newClient.name =
+        newClient.name + ' ' + newClient.face_id[0].split('_')[1];
+    }
+
     return newClient;
   }
 
   async delete(id: Client['id']): Promise<Client> {
     const client = await this.getbyId(id);
 
-    await this.prisma.image.deleteMany({ where: { clientId: id } });
     await this.prisma.exis.deleteMany({ where: { clientId: id } });
     await this.prisma.visit.deleteMany({ where: { clientId: id } });
     await this.prisma.similar.deleteMany({ where: { clientId: id } });
+    client.images.forEach(async (image) => {
+      await this.imageService.delete(image.id);
+    });
 
     return this.prisma.client.delete({
       where: { id },

@@ -74,21 +74,6 @@ export class SimilarService {
   }
 
   async delete(id: Similar['id']): Promise<Similar> {
-    const currentSimilar = await this.prisma.similar.findFirst({
-      where: { id },
-      select: {
-        id: true,
-        image: true,
-        face_id: true,
-        base64image: true,
-        clientId: true,
-      },
-    });
-    if (!currentSimilar) {
-      throw Error('similar not found');
-    }
-    await this.imageService.deleteSimilarImage(currentSimilar.image.id);
-
     return this.prisma.similar.delete({
       where: { id },
       select: {

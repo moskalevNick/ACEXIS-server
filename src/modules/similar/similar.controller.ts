@@ -10,12 +10,16 @@ import {
   Post,
   Put,
 } from '@nestjs/common';
-import { Client, Prisma, Similar } from '@prisma/client';
+import { Client, Prisma, Similar, SimilarImage } from '@prisma/client';
+import { ImageService } from '../image/image.service';
 import { SimilarService } from './similar.service';
 
 @Controller('similar')
 export class SimilarController {
-  constructor(private readonly similarService: SimilarService) {}
+  constructor(
+    private readonly similarService: SimilarService,
+    private readonly imageService: ImageService,
+  ) {}
 
   @Get('/:clientId')
   getSimilarsByClientId(
@@ -38,5 +42,11 @@ export class SimilarController {
   @Delete('/:id')
   delete(@Param('id') id: string): Promise<Similar> {
     return this.similarService.delete(id);
+  }
+
+  @Delete('image/:id') public async deleteImage(
+    @Param('id') id: string,
+  ): Promise<SimilarImage> {
+    return this.imageService.deleteSimilarImage(id);
   }
 }

@@ -1,4 +1,4 @@
-import { Body, Controller, Post, UseGuards, Req } from '@nestjs/common';
+import { Body, Controller, Post, UseGuards, Req, Get } from '@nestjs/common';
 import { User } from '@prisma/client';
 
 import { JwtRefreshGuard } from '../../commons/guards/refreshToken.guard';
@@ -30,5 +30,10 @@ export class AuthController {
   @UseGuards(JwtRefreshGuard)
   logout(@Req() { user }) {
     return this.authService.logout(user);
+  }
+
+  @Get('status')
+  checkStatus() {
+    return 'good connection!';
   }
 }
