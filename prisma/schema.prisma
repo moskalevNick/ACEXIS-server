@@ -46,6 +46,7 @@ model Client {
   billsAmount    Int       @default(0) @db.Int
   lastIdentified DateTime? @db.Date
   lastVisitDate  DateTime? @db.Date
+  isAddFaces     Boolean?  @default(true) @db.Bool
 
   images  Image[]
   exises  Exis[]

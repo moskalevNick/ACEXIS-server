@@ -34,6 +34,7 @@ export class ClientService {
         lastIdentified: true,
         similar: true,
         lastVisitDate: true,
+        isAddFaces: true,
       },
     });
 
@@ -110,6 +111,7 @@ export class ClientService {
         face_id: true,
         lastIdentified: true,
         lastVisitDate: true,
+        isAddFaces: true,
         similar: {
           select: {
             id: true,
@@ -147,6 +149,7 @@ export class ClientService {
         face_id: true,
         lastIdentified: true,
         lastVisitDate: true,
+        isAddFaces: true,
         similar: {
           select: {
             id: true,
@@ -199,6 +202,7 @@ export class ClientService {
         face_id: true,
         lastIdentified: true,
         lastVisitDate: true,
+        isAddFaces: true,
         similar: {
           select: {
             id: true,
@@ -246,6 +250,7 @@ export class ClientService {
         lastIdentified: true,
         similar: true,
         lastVisitDate: true,
+        isAddFaces: true,
       },
     });
 
@@ -281,6 +286,7 @@ export class ClientService {
         lastIdentified: true,
         similar: true,
         lastVisitDate: true,
+        isAddFaces: true,
       },
     });
   }
@@ -309,6 +315,7 @@ export class ClientService {
         lastIdentified: true,
         similar: true,
         lastVisitDate: true,
+        isAddFaces: true,
       },
     });
   }

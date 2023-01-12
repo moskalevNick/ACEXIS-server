@@ -21,6 +21,7 @@ type RecognizerRequestType = {
   faces?: FaceType[];
   error?: number;
   message: string;
+  multipleFaces?: boolean;
 };
 
 @Injectable()
@@ -158,10 +159,14 @@ export class RecognizerService {
                     userId: true,
                     face_id: true,
                     lastIdentified: true,
+                    isAddFaces: true,
                   },
                 });
 
-              if (clientsWithLastIdentified.length) {
+              if (
+                clientsWithLastIdentified.length &&
+                !checkClientDto.multipleFaces
+              ) {
                 console.log(
                   'clientsWithLastIdentified: ',
                   clientsWithLastIdentified,
@@ -172,7 +177,10 @@ export class RecognizerService {
                     const clientUpdateDto = { ...clientWithLastIdentified };
                     delete clientUpdateDto.id;
 
-                    if (clientWithLastIdentified.lastIdentified) {
+                    if (
+                      clientWithLastIdentified.lastIdentified &&
+                      clientWithLastIdentified.isAddFaces
+                    ) {
                       if (
                         clientWithLastIdentified.lastIdentified >
                         twentySecondsAgo
