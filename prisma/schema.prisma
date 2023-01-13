@@ -8,20 +8,21 @@ generator client {
 }
 
 model User {
-  id           String       @id @default(auto()) @map("_id") @db.ObjectId
-  username     String       @db.String
-  password     String       @db.String
-  refreshToken String?      @db.String
-  role         String       @default("user")
-  minBill      Float        @default(0) @db.Double
-  maxBill      Float        @default(1500) @db.Double
-  chatId       String?      @db.String
-  avatar       userAvatar?
-  isRus        Boolean      @default(false)
-  isDark       Boolean      @default(false)
-  cameraToken  String?      @db.String
-  clients      Client[]
-  Recognizer   Recognizer[]
+  id               String       @id @default(auto()) @map("_id") @db.ObjectId
+  username         String       @db.String
+  password         String       @db.String
+  refreshToken     String?      @db.String
+  role             String       @default("user")
+  minBill          Float        @default(0) @db.Double
+  maxBill          Float        @default(1500) @db.Double
+  chatId           String?      @db.String
+  avatar           userAvatar?
+  isRus            Boolean      @default(false)
+  isDark           Boolean      @default(false)
+  cameraToken      String?      @db.String
+  recognitionDelay Int          @default(20) @db.Int
+  clients          Client[]
+  Recognizer       Recognizer[]
 
   @@map("users")
 }

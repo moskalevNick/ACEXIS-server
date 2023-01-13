@@ -53,6 +53,7 @@ export class UsersService {
         avatar: true,
         role: true,
         cameraToken: true,
+        recognitionDelay: true,
       },
     });
   }
@@ -73,6 +74,7 @@ export class UsersService {
         avatar: true,
         role: true,
         cameraToken: true,
+        recognitionDelay: true,
       },
     });
   }

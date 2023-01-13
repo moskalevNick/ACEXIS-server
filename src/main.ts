@@ -21,6 +21,10 @@ async function bootstrap() {
   SwaggerModule.setup('api', app, document);
 
   await app.listen(process.env.PORT || 2000);
+
+  console.log(
+    '---------------------------commit 13.01---------------------------',
+  );
 }
 
 bootstrap();
