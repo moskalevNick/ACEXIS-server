@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { Prisma, Recognizer, User, Visit } from '@prisma/client';
 
+import { ExisService } from './../exis/exis.service';
 import { SimilarService } from './../similar/similar.service';
 import { ClientService } from './../client/client.service';
 import { VisitService } from './../visits/visit.service';
@@ -33,6 +34,7 @@ export class RecognizerService {
     private similarService: SimilarService,
     private botUpdate: BotUpdate,
     private userService: UsersService,
+    private exisService: ExisService,
   ) {}
 
   async create(
@@ -135,13 +137,25 @@ export class RecognizerService {
                     recognizer.userId,
                   );
 
+                  const candidateMessages =
+                    await this.exisService.getExisesByClientId(candidate.id);
+                  const pinnedMessage = candidateMessages.find(
+                    (el) => el.isPinned,
+                  );
+
                   const wasRecognizedNow: string = isRus
                     ? 'был распознан 👁️'
                     : 'was recognized now 👁️';
 
+                  const pinnedMessageText = pinnedMessage
+                    ? isRus
+                      ? `с закрепленным сообщением: ${pinnedMessage.text}`
+                      : `with pinned message: ${pinnedMessage.text}`
+                    : '';
+
                   await this.botUpdate.sendMessage(
                     chatId,
-                    `${candidate.name} ${wasRecognizedNow}`,
+                    `${candidate.name} ${wasRecognizedNow} ${pinnedMessageText}`,
                   );
                 }
 
