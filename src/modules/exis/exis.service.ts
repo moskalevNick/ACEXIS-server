@@ -44,7 +44,11 @@ export class ExisService {
     const data: Prisma.ExisUncheckedCreateInput = {
       ...exisDto,
       clientId,
-      visitId: lastVisit.date > threeHoursAgo ? lastVisit.id : null,
+      visitId: lastVisit
+        ? lastVisit.date > threeHoursAgo
+          ? lastVisit.id
+          : null
+        : null,
     };
 
     const createdExis = await this.prisma.exis.create({ data });
