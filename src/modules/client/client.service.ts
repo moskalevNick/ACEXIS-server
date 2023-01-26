@@ -134,6 +134,9 @@ export class ClientService {
             OR: [],
           },
         },
+        status: {
+          in: status,
+        },
       },
       select: {
         id: true,
