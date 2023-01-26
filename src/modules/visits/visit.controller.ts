@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   Header,
   HttpCode,
@@ -32,12 +33,17 @@ export class VisitController {
     return this.visitService.create(createVisitDto, clientId);
   }
 
-  @Put(':id')
+  @Put('/:id')
   update(
     @Body()
     updateVisitDto: Pick<Prisma.VisitUpdateInput, 'exisId' | 'exis'>,
     @Param('id') id: string,
   ): Promise<Visit> {
     return this.visitService.update(id, updateVisitDto);
+  }
+
+  @Delete('/:id')
+  delete(@Param('id') id: string): Promise<Visit> {
+    return this.visitService.delete(id);
   }
 }

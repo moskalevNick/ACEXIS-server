@@ -85,7 +85,7 @@ export class RecognizerService {
         );
 
         checkClientDto.faces.forEach(async (face) => {
-          if (face.accuracy >= 85) {
+          if (face.accuracy >= 90) {
             const candidate = await this.prisma.client.findFirst({
               where: {
                 face_id: {
