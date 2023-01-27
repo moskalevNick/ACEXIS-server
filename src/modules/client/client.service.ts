@@ -316,9 +316,17 @@ export class ClientService {
         images: true,
         face_id: true,
         lastIdentified: true,
-        similar: true,
         lastVisitDate: true,
         isAddFaces: true,
+        similar: {
+          select: {
+            id: true,
+            face_id: true,
+            base64image: true,
+            clientId: true,
+            image: true,
+          },
+        },
       },
     });
   }
