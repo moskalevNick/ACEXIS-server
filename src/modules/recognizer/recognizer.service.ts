@@ -87,244 +87,247 @@ export class RecognizerService {
         console.log('new request: ', checkClientDto);
 
         checkClientDto.faces.forEach(async (face) => {
-          const candidate = await this.prisma.client.findFirst({
-            where: {
-              face_id: {
-                hasSome: face.face_id,
+          if (face.accuracy >= 90) {
+            const candidate = await this.prisma.client.findFirst({
+              where: {
+                face_id: {
+                  hasSome: face.face_id,
+                },
               },
-            },
-          });
-
-          const { images } = await this.prisma.client.findFirst({
-            where: {
-              face_id: {
-                hasSome: face.face_id,
-              },
-            },
-            select: {
-              images: true,
-            },
-          });
-
-          if (candidate) {
-            console.log('candidate');
-            if (candidate.status === 'wheel') {
-              console.log('wheel status');
-              return;
-            }
-
-            const candidateUpdateDto = { ...candidate };
-            delete candidateUpdateDto.id;
-
-            if (candidate.lastIdentified < isAddFaces) {
-              console.log('update candidate last ident');
-
-              await this.clientService.update(candidate.id, {
-                ...candidateUpdateDto,
-                lastIdentified: new Date(),
-              });
-            }
-
-            const visits = await this.visitService.getVisitsByClientId(
-              candidate.id,
-            );
-
-            let lastVisit: Visit;
-
-            visits?.forEach((visit) => {
-              if (lastVisit) {
-                if (visit.date > lastVisit.date) {
-                  lastVisit = visit;
-                }
-              } else {
-                lastVisit = visit;
-              }
             });
 
-            if (!lastVisit || lastVisit.date < tenMinutesAgo) {
-              console.log('update last visit');
-              await this.clientService.update(candidate.id, {
-                lastIdentified: new Date(),
-                lastVisitDate: new Date(),
+            const { images } = await this.prisma.client.findFirst({
+              where: {
+                face_id: {
+                  hasSome: face.face_id,
+                },
+              },
+              select: {
+                images: true,
+              },
+            });
+
+            if (candidate) {
+              console.log('candidate');
+              if (candidate.status === 'wheel') {
+                console.log('wheel status');
+                return;
+              }
+
+              const candidateUpdateDto = { ...candidate };
+              delete candidateUpdateDto.id;
+
+              if (candidate.lastIdentified < isAddFaces) {
+                console.log('update candidate last ident');
+
+                await this.clientService.update(candidate.id, {
+                  ...candidateUpdateDto,
+                  lastIdentified: new Date(),
+                });
+              }
+
+              const visits = await this.visitService.getVisitsByClientId(
+                candidate.id,
+              );
+
+              let lastVisit: Visit;
+
+              visits?.forEach((visit) => {
+                if (lastVisit) {
+                  if (visit.date > lastVisit.date) {
+                    lastVisit = visit;
+                  }
+                } else {
+                  lastVisit = visit;
+                }
               });
 
-              if (candidate.status !== 'ghost') {
-                const { chatId, isRus } = await this.userService.findById(
+              if (!lastVisit || lastVisit.date < tenMinutesAgo) {
+                console.log('update last visit');
+                await this.clientService.update(candidate.id, {
+                  lastIdentified: new Date(),
+                  lastVisitDate: new Date(),
+                });
+
+                if (candidate.status !== 'ghost') {
+                  const { chatId, isRus } = await this.userService.findById(
+                    recognizer.userId,
+                  );
+
+                  const candidateMessages =
+                    await this.exisService.getExisesByClientId(candidate.id);
+                  const pinnedMessage = candidateMessages.find(
+                    (el) => el.isPinned,
+                  );
+
+                  const candidateAvatar = images[0];
+
+                  const wasRecognizedNow: string = isRus
+                    ? 'был распознан 👁️'
+                    : 'was recognized now 👁️';
+
+                  const pinnedMessageText = pinnedMessage
+                    ? isRus
+                      ? `с закрепленным сообщением: ${pinnedMessage.text}`
+                      : `with pinned message: ${pinnedMessage.text}`
+                    : '';
+
+                  console.log(
+                    'tlgrm: ',
+                    chatId,
+                    candidateAvatar.path,
+                    `${candidate.name} ${wasRecognizedNow} ${pinnedMessageText}`,
+                  );
+
+                  await this.botUpdate.sendMessage(
+                    chatId,
+                    candidateAvatar.publicUrl,
+                    `${candidate.name} ${wasRecognizedNow} ${pinnedMessageText}`,
+                  );
+                }
+
+                return this.visitService.create({}, candidate.id);
+              } else {
+                return;
+              }
+            } else {
+              const clientsWithLastIdentified =
+                await this.prisma.client.findMany({
+                  where: {
+                    lastIdentified: {
+                      not: null,
+                      isSet: true,
+                    },
+                  },
+                  select: {
+                    id: true,
+                    name: true,
+                    status: true,
+                    phone: true,
+                    averageBill: true,
+                    billsAmount: true,
+                    userId: true,
+                    face_id: true,
+                    lastIdentified: true,
+                    isAddFaces: true,
+                  },
+                });
+
+              if (
+                clientsWithLastIdentified.length &&
+                !checkClientDto.multipleFaces
+              ) {
+                console.log(
+                  'clientsWithLastIdentified: ',
+                  clientsWithLastIdentified,
+                );
+
+                clientsWithLastIdentified.forEach(
+                  async (clientWithLastIdentified) => {
+                    const clientUpdateDto = { ...clientWithLastIdentified };
+                    delete clientUpdateDto.id;
+
+                    if (
+                      clientWithLastIdentified.lastIdentified &&
+                      clientWithLastIdentified.isAddFaces
+                    ) {
+                      if (
+                        clientWithLastIdentified.lastIdentified > isAddFaces
+                      ) {
+                        const similars =
+                          await this.similarService.getSimilarsByClientId(
+                            clientWithLastIdentified.id,
+                          );
+                        const oldSimilar = similars.find(
+                          (el) => el.face_id === face.face_id,
+                        );
+                        if (!oldSimilar && similars.length < 5) {
+                          console.log('update similars');
+                          const faceDto = {
+                            ...face,
+                            base64image: face.frame_content,
+                          };
+                          delete faceDto.frame_content;
+                          delete faceDto.accuracy;
+
+                          await this.similarService.create(
+                            faceDto,
+                            clientWithLastIdentified.id,
+                          );
+                        }
+                      } else {
+                        console.log('reset last Ident');
+
+                        await this.clientService.update(
+                          clientWithLastIdentified.id,
+                          {
+                            ...clientUpdateDto,
+                            lastIdentified: null,
+                          },
+                        );
+
+                        console.log(
+                          'new client(after reset last ident): ',
+                          face.face_id,
+                        );
+
+                        const newClient = await this.clientService.create(
+                          {
+                            face_id: [face.face_id],
+                            lastIdentified: new Date(),
+                            lastVisitDate: new Date(),
+                          },
+                          recognizer.userId,
+                        );
+
+                        const clientImage: Express.Multer.File = {
+                          fieldname: '',
+                          originalname: `recognizer_image___`,
+                          encoding: '',
+                          mimetype: '',
+                          size: face.frame_content.length,
+                          destination: '',
+                          filename: '',
+                          path: '',
+                          buffer: Buffer.from(face.frame_content, 'base64'),
+                          stream: undefined,
+                        };
+                        await this.clientService.uploadImage(
+                          newClient.id,
+                          clientImage,
+                        );
+                        await this.visitService.create({}, newClient.id);
+                      }
+                    }
+                  },
+                );
+              } else {
+                console.log('new client: ', face.face_id);
+
+                const newClient = await this.clientService.create(
+                  {
+                    face_id: [face.face_id],
+                    lastIdentified: new Date(),
+                    lastVisitDate: new Date(),
+                  },
                   recognizer.userId,
                 );
 
-                const candidateMessages =
-                  await this.exisService.getExisesByClientId(candidate.id);
-                const pinnedMessage = candidateMessages.find(
-                  (el) => el.isPinned,
-                );
-
-                const candidateAvatar = images[0];
-
-                const wasRecognizedNow: string = isRus
-                  ? 'был распознан 👁️'
-                  : 'was recognized now 👁️';
-
-                const pinnedMessageText = pinnedMessage
-                  ? isRus
-                    ? `с закрепленным сообщением: ${pinnedMessage.text}`
-                    : `with pinned message: ${pinnedMessage.text}`
-                  : '';
-
-                console.log(
-                  'tlgrm: ',
-                  chatId,
-                  candidateAvatar.path,
-                  `${candidate.name} ${wasRecognizedNow} ${pinnedMessageText}`,
-                );
-
-                await this.botUpdate.sendMessage(
-                  chatId,
-                  candidateAvatar.publicUrl,
-                  `${candidate.name} ${wasRecognizedNow} ${pinnedMessageText}`,
-                );
+                const clientImage: Express.Multer.File = {
+                  fieldname: '',
+                  originalname: `recognizer_image___`,
+                  encoding: '',
+                  mimetype: '',
+                  size: face.frame_content.length,
+                  destination: '',
+                  filename: '',
+                  path: '',
+                  buffer: Buffer.from(face.frame_content, 'base64'),
+                  stream: undefined,
+                };
+                await this.clientService.uploadImage(newClient.id, clientImage);
+                await this.visitService.create({}, newClient.id);
               }
-
-              return this.visitService.create({}, candidate.id);
-            } else {
-              return;
-            }
-          } else {
-            const clientsWithLastIdentified = await this.prisma.client.findMany(
-              {
-                where: {
-                  lastIdentified: {
-                    not: null,
-                    isSet: true,
-                  },
-                },
-                select: {
-                  id: true,
-                  name: true,
-                  status: true,
-                  phone: true,
-                  averageBill: true,
-                  billsAmount: true,
-                  userId: true,
-                  face_id: true,
-                  lastIdentified: true,
-                  isAddFaces: true,
-                },
-              },
-            );
-
-            if (
-              clientsWithLastIdentified.length &&
-              !checkClientDto.multipleFaces
-            ) {
-              console.log(
-                'clientsWithLastIdentified: ',
-                clientsWithLastIdentified,
-              );
-
-              clientsWithLastIdentified.forEach(
-                async (clientWithLastIdentified) => {
-                  const clientUpdateDto = { ...clientWithLastIdentified };
-                  delete clientUpdateDto.id;
-
-                  if (
-                    clientWithLastIdentified.lastIdentified &&
-                    clientWithLastIdentified.isAddFaces
-                  ) {
-                    if (clientWithLastIdentified.lastIdentified > isAddFaces) {
-                      const similars =
-                        await this.similarService.getSimilarsByClientId(
-                          clientWithLastIdentified.id,
-                        );
-                      const oldSimilar = similars.find(
-                        (el) => el.face_id === face.face_id,
-                      );
-                      if (!oldSimilar && similars.length < 5) {
-                        console.log('update similars');
-                        const faceDto = {
-                          ...face,
-                          base64image: face.frame_content,
-                        };
-                        delete faceDto.frame_content;
-                        delete faceDto.accuracy;
-
-                        await this.similarService.create(
-                          faceDto,
-                          clientWithLastIdentified.id,
-                        );
-                      }
-                    } else {
-                      console.log('reset last Ident');
-
-                      await this.clientService.update(
-                        clientWithLastIdentified.id,
-                        {
-                          ...clientUpdateDto,
-                          lastIdentified: null,
-                        },
-                      );
-
-                      console.log(
-                        'new client(after reset last ident): ',
-                        face.face_id,
-                      );
-
-                      const newClient = await this.clientService.create(
-                        {
-                          face_id: [face.face_id],
-                          lastIdentified: new Date(),
-                          lastVisitDate: new Date(),
-                        },
-                        recognizer.userId,
-                      );
-
-                      const clientImage: Express.Multer.File = {
-                        fieldname: '',
-                        originalname: `recognizer_image___`,
-                        encoding: '',
-                        mimetype: '',
-                        size: face.frame_content.length,
-                        destination: '',
-                        filename: '',
-                        path: '',
-                        buffer: Buffer.from(face.frame_content, 'base64'),
-                        stream: undefined,
-                      };
-                      await this.clientService.uploadImage(
-                        newClient.id,
-                        clientImage,
-                      );
-                      await this.visitService.create({}, newClient.id);
-                    }
-                  }
-                },
-              );
-            } else {
-              console.log('new client: ', face.face_id);
-
-              const newClient = await this.clientService.create(
-                {
-                  face_id: [face.face_id],
-                  lastIdentified: new Date(),
-                  lastVisitDate: new Date(),
-                },
-                recognizer.userId,
-              );
-
-              const clientImage: Express.Multer.File = {
-                fieldname: '',
-                originalname: `recognizer_image___`,
-                encoding: '',
-                mimetype: '',
-                size: face.frame_content.length,
-                destination: '',
-                filename: '',
-                path: '',
-                buffer: Buffer.from(face.frame_content, 'base64'),
-                stream: undefined,
-              };
-              await this.clientService.uploadImage(newClient.id, clientImage);
-              await this.visitService.create({}, newClient.id);
             }
           }
         });
