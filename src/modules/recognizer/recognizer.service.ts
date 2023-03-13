@@ -180,7 +180,7 @@ export class RecognizerService {
 
                 await this.botUpdate.sendMessage(
                   chatId,
-                  candidateAvatar.path,
+                  candidateAvatar.publicUrl,
                   `${candidate.name} ${wasRecognizedNow} ${pinnedMessageText}`,
                 );
               }
