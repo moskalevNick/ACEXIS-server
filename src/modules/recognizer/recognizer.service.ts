@@ -175,18 +175,16 @@ export class RecognizerService {
                     : `with pinned message: ${pinnedMessage.text}`
                   : '';
 
-                console.log(
-                  'tlgrm: ',
-                  chatId,
-                  candidateAvatar && candidateAvatar.path,
-                  `${candidate.name} ${wasRecognizedNow} ${pinnedMessageText}`,
-                );
-
                 await this.botUpdate.sendMessage(
                   chatId,
-                  candidateAvatar && candidateAvatar.publicUrl,
                   `${candidate.name} ${wasRecognizedNow} ${pinnedMessageText}`,
                 );
+                if (candidateAvatar) {
+                  await this.botUpdate.sendMessage(
+                    chatId,
+                    candidateAvatar.publicUrl,
+                  );
+                }
               }
 
               return this.visitService.create({}, candidate.id);

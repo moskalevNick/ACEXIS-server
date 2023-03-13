@@ -45,4 +45,7 @@ export class BotUpdate {
     photo && this.bot.telegram.sendPhoto(chatId, photo);
     await this.bot.telegram.sendMessage(chatId, msg);
   }
+  async sendPhoto(chatId: string, photo: string | InputFile) {
+    await this.bot.telegram.sendPhoto(chatId, photo);
+  }
 }
