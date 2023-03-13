@@ -1,5 +1,6 @@
 import { InjectBot, Start, Update, Action } from 'nestjs-telegraf';
 import { Context, Telegraf, Markup } from 'telegraf';
+import { InputFile } from 'telegraf/typings/core/types/typegram';
 
 @Update()
 export class BotUpdate {
@@ -29,7 +30,6 @@ export class BotUpdate {
 
   @Action('getChatId')
   async getChatId(ctx: any) {
-    console.log('inside getId');
     const yourChatId: String =
       ctx.update.callback_query.from.language_code === 'ru'
         ? 'Ваш ID чата:'
@@ -41,8 +41,8 @@ export class BotUpdate {
   }
 
   @Action('sendMessage')
-  async sendMessage(chatId: string, msg: string) {
-    console.log('inside sendMessage');
+  async sendMessage(chatId: string, msg: string, photo?: string | InputFile) {
+    photo && this.bot.telegram.sendPhoto(chatId, photo);
     await this.bot.telegram.sendMessage(chatId, msg);
   }
 }

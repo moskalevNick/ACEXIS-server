@@ -95,6 +95,17 @@ export class RecognizerService {
             },
           });
 
+          const { images } = await this.prisma.client.findFirst({
+            where: {
+              face_id: {
+                hasSome: face.face_id,
+              },
+            },
+            select: {
+              images: true,
+            },
+          });
+
           if (candidate) {
             console.log('candidate');
             if (candidate.status === 'wheel') {
@@ -148,6 +159,8 @@ export class RecognizerService {
                   (el) => el.isPinned,
                 );
 
+                const candidateAvatar = images[0];
+
                 const wasRecognizedNow: string = isRus
                   ? 'был распознан 👁️'
                   : 'was recognized now 👁️';
@@ -158,8 +171,16 @@ export class RecognizerService {
                     : `with pinned message: ${pinnedMessage.text}`
                   : '';
 
+                console.log(
+                  'tlgrm: ',
+                  chatId,
+                  candidateAvatar.path,
+                  `${candidate.name} ${wasRecognizedNow} ${pinnedMessageText}`,
+                );
+
                 await this.botUpdate.sendMessage(
                   chatId,
+                  candidateAvatar.path,
                   `${candidate.name} ${wasRecognizedNow} ${pinnedMessageText}`,
                 );
               }
@@ -242,6 +263,38 @@ export class RecognizerService {
                           lastIdentified: null,
                         },
                       );
+
+                      console.log(
+                        'new client(after reset last ident): ',
+                        face.face_id,
+                      );
+
+                      const newClient = await this.clientService.create(
+                        {
+                          face_id: [face.face_id],
+                          lastIdentified: new Date(),
+                          lastVisitDate: new Date(),
+                        },
+                        recognizer.userId,
+                      );
+
+                      const clientImage: Express.Multer.File = {
+                        fieldname: '',
+                        originalname: `recognizer_image___`,
+                        encoding: '',
+                        mimetype: '',
+                        size: face.frame_content.length,
+                        destination: '',
+                        filename: '',
+                        path: '',
+                        buffer: Buffer.from(face.frame_content, 'base64'),
+                        stream: undefined,
+                      };
+                      await this.clientService.uploadImage(
+                        newClient.id,
+                        clientImage,
+                      );
+                      await this.visitService.create({}, newClient.id);
                     }
                   }
                 },
