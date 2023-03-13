@@ -184,7 +184,7 @@ export class RecognizerService {
 
                 await this.botUpdate.sendMessage(
                   chatId,
-                  candidateAvatar.publicUrl,
+                  candidateAvatar && candidateAvatar.publicUrl,
                   `${candidate.name} ${wasRecognizedNow} ${pinnedMessageText}`,
                 );
               }
