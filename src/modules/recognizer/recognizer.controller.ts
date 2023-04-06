@@ -27,8 +27,6 @@ export class RecognizerController {
     @Body()
     checkClientDto: any,
   ) {
-    console.log(checkClientDto);
-
     return this.recognizerService.check(checkClientDto);
   }
 }

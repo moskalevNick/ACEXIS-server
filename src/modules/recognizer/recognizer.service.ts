@@ -304,9 +304,19 @@ export class RecognizerService {
     }
     if (checkClientDto.mode === 'status') {
       if (checkClientDto.error !== 0) {
-        console.log(
-          `there was an error with message: ${checkClientDto.message}. Error code: ${checkClientDto.error}`,
+        const recognizer = await this.prisma.recognizer.findUnique({
+          where: {
+            device_id: checkClientDto.device_id,
+          },
+        });
+
+        const { chatId } = await this.userService.findById(recognizer.userId);
+
+        await this.botUpdate.sendMessage(
+          chatId,
+          `There was an error with message: ${checkClientDto.message}. Error code: ${checkClientDto.error}`,
         );
+
         return `there was an error with message: ${checkClientDto.message}. Error code: ${checkClientDto.error}`;
       }
     }
