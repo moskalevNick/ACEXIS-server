@@ -8,8 +8,6 @@ export class BotUpdate {
 
   @Start()
   async startCommand(ctx: Context) {
-    console.log('inside start');
-
     const chat = await ctx.getChat();
 
     const hello: String =
