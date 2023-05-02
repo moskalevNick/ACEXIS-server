@@ -269,7 +269,7 @@ export class RecognizerService {
                   }
                 },
               );
-            } else {
+            } else if (!checkClientDto.multipleFaces) {
               console.log('new client: ', face.face_id);
 
               const newClient = await this.clientService.create(
@@ -295,6 +295,8 @@ export class RecognizerService {
               };
               await this.clientService.uploadImage(newClient.id, clientImage);
               await this.visitService.create({}, newClient.id);
+            } else {
+              console.log('multipleFaces');
             }
           }
         });
