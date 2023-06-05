@@ -23,7 +23,7 @@ async function bootstrap() {
   await app.listen(process.env.PORT || 2000);
 
   console.log(
-    '---------------------------commit 02.05---------------------------',
+    '----------------------------commit 02.05----------------------------',
   );
 }
 
